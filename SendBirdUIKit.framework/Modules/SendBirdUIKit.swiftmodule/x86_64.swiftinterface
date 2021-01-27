@@ -1121,6 +1121,9 @@ extension SBUChannelViewController : SendBirdUIKit.SBUUserProfileViewDelegate {
   @objc dynamic open func didSelectMessage(userId: Swift.String?)
   @objc dynamic open func didSelectClose()
 }
+extension SBUChannelViewController : UIKit.UIGestureRecognizerDelegate {
+  @objc dynamic open func gestureRecognizer(_ gestureRecognizer: UIKit.UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIKit.UIGestureRecognizer) -> Swift.Bool
+}
 extension SBUChannelViewController : SendBirdSDK.SBDChannelDelegate, SendBirdSDK.SBDConnectionDelegate {
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, didReceive message: SendBirdSDK.SBDBaseMessage)
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, didUpdate message: SendBirdSDK.SBDBaseMessage)
