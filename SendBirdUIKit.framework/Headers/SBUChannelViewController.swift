@@ -112,7 +112,6 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
 
     private var newMessagesCount: Int = 0
     private var touchedPoint: CGPoint = .zero
-
     
     // MARK: - Logic properties (Public)
     
@@ -2185,7 +2184,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     /// - Since: 1.2.5
     public func keyboardWillHide(_ notification: Notification) {
         self.messageInputViewBottomConstraint.constant = 0
-        self.view.layoutIfNeeded()
+//        self.view.layoutIfNeeded()
     }
     
     /// This function dismisses the keyboard.
@@ -2196,7 +2195,16 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     
     @objc private func dismissKeyboardIfTouchInput(gestureRecognizer: UIPanGestureRecognizer) {
         let point = gestureRecognizer.location(in: view)
-        if self.messageInputView.frame.contains(point) {
+        
+        //messageInputView can be inserted other place so we need to check
+        //location of view relative to screen view
+        let viewFrame = UIApplication
+            .shared
+            .keyWindow?
+            .convert(self.messageInputView.frame, to: nil) ?? .zero
+        
+        //only if gesture location is through input view
+        if viewFrame.contains(point) {
             self.view.endEditing(true)
         }
     }
@@ -2209,8 +2217,8 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
         tableView.addGestureRecognizer(tap)
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(dismissKeyboardIfTouchInput))
-        pan.cancelsTouchesInView = false
         pan.delegate = self
+        pan.cancelsTouchesInView = false
         tableView.addGestureRecognizer(pan)
     }
     
@@ -2221,7 +2229,6 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     }
 }
 
-
 // MARK: - UITableViewDelegate, UITableViewDataSource
 extension SBUChannelViewController: UITableViewDelegate, UITableViewDataSource {
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -2231,10 +2238,11 @@ extension SBUChannelViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         let message = self.fullMessageList[indexPath.row]
-
+        
         let cell = tableView.dequeueReusableCell(
-            withIdentifier: self.generateCellIdentifier(by: message)
-            ) ?? UITableViewCell()
+            withIdentifier: self.generateCellIdentifier(by: message),
+            for: indexPath
+        )
         cell.contentView.transform = CGAffineTransform(scaleX: 1, y: -1)
         cell.selectionStyle = .none
         
@@ -2369,7 +2377,6 @@ extension SBUChannelViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
 }
-
 
 // MARK: - UIViewControllerTransitioningDelegate
 extension SBUChannelViewController: UIViewControllerTransitioningDelegate {
@@ -2543,15 +2550,6 @@ extension SBUChannelViewController: SBUUserProfileViewDelegate {
     }
 }
 
-extension SBUChannelViewController: UIGestureRecognizerDelegate {
-    open func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer)
-            -> Bool {
-       return true
-    }
-    
-    
-}
 
 // MARK: - SBDChannelDelegate, SBDConnectionDelegate
 extension SBUChannelViewController: SBDChannelDelegate, SBDConnectionDelegate {

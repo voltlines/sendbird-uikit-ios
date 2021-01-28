@@ -858,6 +858,9 @@ public typealias SBUNewMessageInfoHandler = () -> Swift.Void
   @objc required dynamic public init?(coder: Foundation.NSCoder)
   @objc deinit
 }
+extension SBUBaseChannelViewController : UIKit.UIGestureRecognizerDelegate {
+  @objc dynamic open func gestureRecognizer(_ gestureRecognizer: UIKit.UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIKit.UIGestureRecognizer) -> Swift.Bool
+}
 @objc @objcMembers open class SBUModerationsViewController : UIKit.UIViewController, UIKit.UINavigationControllerDelegate {
   @objc public var titleView: UIKit.UIView? {
     @objc get
@@ -1120,9 +1123,6 @@ extension SBUChannelViewController : SendBirdUIKit.SBUEmptyViewDelegate {
 extension SBUChannelViewController : SendBirdUIKit.SBUUserProfileViewDelegate {
   @objc dynamic open func didSelectMessage(userId: Swift.String?)
   @objc dynamic open func didSelectClose()
-}
-extension SBUChannelViewController : UIKit.UIGestureRecognizerDelegate {
-  @objc dynamic open func gestureRecognizer(_ gestureRecognizer: UIKit.UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIKit.UIGestureRecognizer) -> Swift.Bool
 }
 extension SBUChannelViewController : SendBirdSDK.SBDChannelDelegate, SendBirdSDK.SBDConnectionDelegate {
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, didReceive message: SendBirdSDK.SBDBaseMessage)
