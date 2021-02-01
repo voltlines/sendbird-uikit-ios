@@ -181,7 +181,18 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
     /// This function handles the initialization of autolayouts.
     open func setupAutolayout() {
         if #available(iOS 11.0, *) {
-            self.baseStackView.sbu_constraint(equalTo: self, leading: 20, trailing: -16, top: 0)
+            self.baseStackView.sbu_constraint_equalTo(
+                leadingAnchor: self.safeAreaLayoutGuide.leadingAnchor,
+                leading: 20
+            )
+            self.baseStackView.sbu_constraint_equalTo(
+                topAnchor: self.safeAreaLayoutGuide.topAnchor,
+                top: 0
+            )
+            self.baseStackView.sbu_constraint_equalTo(
+                trailingAnchor: self.safeAreaLayoutGuide.trailingAnchor,
+                trailing: -16
+            )
             self.baseStackView.sbu_constraint_equalTo(
                 bottomAnchor: self.safeAreaLayoutGuide.bottomAnchor,
                 bottom: 0
@@ -335,8 +346,10 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
         self.textView?.isUserInteractionEnabled = !self.isFrozen
         self.addButton?.isEnabled = !self.isFrozen
         
-        self.endEditMode()
-        self.endTypingMode()
+        if self.isFrozen {
+            self.endEditMode()
+            self.endTypingMode()
+        }
         self.setupStyles()
     }
     
@@ -349,8 +362,10 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
         self.textView?.isUserInteractionEnabled = !self.isMuted
         self.addButton?.isEnabled = !self.isMuted
         
-        self.endEditMode()
-        self.endTypingMode()
+        if self.isMuted {
+            self.endEditMode()
+            self.endTypingMode()
+        }
         self.setupStyles()
     }
     

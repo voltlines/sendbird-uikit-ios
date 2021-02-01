@@ -76,6 +76,7 @@ import UIKit
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewDidLayoutSubviews()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc deinit
   @objc public func loadChannel(channelUrl: Swift.String?)
   @objc public func loadNextUserList(reset: Swift.Bool, users: [SendBirdUIKit.SBUUser]? = nil)
@@ -323,6 +324,7 @@ extension UIImageView {
   }
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc deinit
   @objc public func changePushTriggerOption(option: SendBirdSDK.SBDGroupChannelPushTriggerOption, channel: SendBirdSDK.SBDGroupChannel, completionHandler: ((Swift.Bool) -> Swift.Void)? = nil)
   @objc public func leaveChannel(_ channel: SendBirdSDK.SBDGroupChannel, completionHandler: ((Swift.Bool) -> Swift.Void)? = nil)
@@ -512,10 +514,6 @@ extension NSObject {
     @objc get
     @objc set
   }
-  @objc public var messageInputView: SendBirdUIKit.SBUMessageInputView {
-    @objc get
-    @objc set
-  }
   @objc public var titleView: UIKit.UIView? {
     @objc get
     @objc set
@@ -533,13 +531,6 @@ extension NSObject {
     @objc set
   }
   @objc public var emptyView: UIKit.UIView? {
-    @objc get
-    @objc set
-  }
-  @objc public var tableView: UIKit.UITableView {
-    @objc get
-  }
-  @objc public var userProfileView: UIKit.UIView? {
     @objc get
     @objc set
   }
@@ -586,24 +577,6 @@ extension NSObject {
   public func updateRatio(mediaView: CoreGraphics.CGFloat? = nil, messageList: CoreGraphics.CGFloat? = nil)
   @objc public func overlayMediaView(_ overlaying: Swift.Bool, messageListRatio: CoreGraphics.CGFloat)
   @objc public func mediaViewIgnoringSafeArea(_ enabled: Swift.Bool = true)
-  @objc public var messageInputViewBottomConstraint: UIKit.NSLayoutConstraint! {
-    get
-  }
-  @objc public var tableViewTopConstraint: UIKit.NSLayoutConstraint! {
-    get
-  }
-  @objc public var mediaViewConstraints: [UIKit.NSLayoutConstraint] {
-    get
-  }
-  @objc public var channelInfoViewAnchorConstraint: UIKit.NSLayoutConstraint! {
-    get
-  }
-  @objc public var channelInfoViewAnchorConstraints: [UIKit.NSLayoutConstraint] {
-    get
-  }
-  @objc public var channelInfoViewHeightConstraint: UIKit.NSLayoutConstraint! {
-    get
-  }
   @objc public var currentOrientation: UIKit.UIDeviceOrientation
   @objc public var channel: SendBirdSDK.SBDOpenChannel? {
     get
@@ -670,7 +643,6 @@ extension NSObject {
   @objc public func register(customMessageCell: SendBirdUIKit.SBUOpenChannelBaseMessageCell?, nib: UIKit.UINib? = nil)
   @objc open func setTapGestureHandler(_ cell: SendBirdUIKit.SBUOpenChannelBaseMessageCell, message: SendBirdSDK.SBDBaseMessage)
   @objc open func setLongTapGestureHandler(_ cell: SendBirdUIKit.SBUOpenChannelBaseMessageCell, message: SendBirdSDK.SBDBaseMessage, indexPath: Foundation.IndexPath)
-  @objc open func setUserProfileTapGestureHandler(_ user: SendBirdUIKit.SBUUser)
   @objc public func updateBarButton()
   @objc public func updateMessageInputModeState()
   @objc public func checkSameDayAsNextMessage(currentIndex: Swift.Int) -> Swift.Bool
@@ -681,23 +653,17 @@ extension NSObject {
   @objc public func onClickSetting()
   @objc public func onClickParticipantsList()
   @objc public func scrollToBottom(animated: Swift.Bool)
-  @objc public func scrollViewDidScroll(_ scrollView: UIKit.UIScrollView)
+  @objc override dynamic public func scrollViewDidScroll(_ scrollView: UIKit.UIScrollView)
   @objc open func setUserMessageCellGestures(_ cell: SendBirdUIKit.SBUOpenChannelUserMessageCell, userMessage: SendBirdSDK.SBDUserMessage, indexPath: Foundation.IndexPath)
   @objc open func setFileMessageCellGestures(_ cell: SendBirdUIKit.SBUOpenChannelFileMessageCell, fileMessage: SendBirdSDK.SBDFileMessage, indexPath: Foundation.IndexPath)
   @objc open func setUnkownMessageCellGestures(_ cell: SendBirdUIKit.SBUOpenChannelUnknownMessageCell, unknownMessage: SendBirdSDK.SBDBaseMessage, indexPath: Foundation.IndexPath)
   @objc public func calculatorMenuPoint(indexPath: Foundation.IndexPath) -> CoreGraphics.CGPoint
   public func showMenuModal(_ cell: SendBirdUIKit.SBUOpenChannelBaseMessageCell, indexPath: Foundation.IndexPath, message: SendBirdSDK.SBDBaseMessage, types: [SendBirdUIKit.MessageMenuItem])
-  @objc public func keyboardWillShow(_ notification: Foundation.Notification)
-  @objc public func keyboardWillHide(_ notification: Foundation.Notification)
-  @objc public func dismissKeyboard()
-  @objc public func addGestureHideKeyboard()
   @objc open func didReceiveError(_ message: Swift.String?)
-}
-extension SBUOpenChannelViewController : UIKit.UITableViewDelegate, UIKit.UITableViewDataSource {
-  @objc dynamic open func tableView(_ tableView: UIKit.UITableView, cellForRowAt indexPath: Foundation.IndexPath) -> UIKit.UITableViewCell
-  @objc dynamic open func tableView(_ tableView: UIKit.UITableView, willDisplay cell: UIKit.UITableViewCell, forRowAt indexPath: Foundation.IndexPath)
-  @objc dynamic open func tableView(_ tableView: UIKit.UITableView, numberOfRowsInSection section: Swift.Int) -> Swift.Int
-  @objc dynamic open func generateCellIdentifier(by message: SendBirdSDK.SBDBaseMessage) -> Swift.String
+  @objc override dynamic open func tableView(_ tableView: UIKit.UITableView, cellForRowAt indexPath: Foundation.IndexPath) -> UIKit.UITableViewCell
+  @objc open func tableView(_ tableView: UIKit.UITableView, willDisplay cell: UIKit.UITableViewCell, forRowAt indexPath: Foundation.IndexPath)
+  @objc override dynamic open func tableView(_ tableView: UIKit.UITableView, numberOfRowsInSection section: Swift.Int) -> Swift.Int
+  @objc open func generateCellIdentifier(by message: SendBirdSDK.SBDBaseMessage) -> Swift.String
 }
 extension SBUOpenChannelViewController : UIKit.UIViewControllerTransitioningDelegate {
   @objc dynamic public func presentationController(forPresented presented: UIKit.UIViewController, presenting: UIKit.UIViewController?, source: UIKit.UIViewController) -> UIKit.UIPresentationController?
@@ -721,10 +687,6 @@ extension SBUOpenChannelViewController {
 }
 extension SBUOpenChannelViewController : SendBirdUIKit.SBUEmptyViewDelegate {
   @objc dynamic public func didSelectRetry()
-}
-extension SBUOpenChannelViewController : SendBirdUIKit.SBUUserProfileViewDelegate {
-  @objc dynamic open func didSelectMessage(userId: Swift.String?)
-  @objc dynamic open func didSelectClose()
 }
 extension SBUOpenChannelViewController : SendBirdUIKit.SBUChannelInfoHeaderViewDelegate {
   @objc dynamic open func didSelectChannelInfo()
@@ -851,15 +813,43 @@ public typealias SBUNewMessageInfoHandler = () -> Swift.Void
   @objc deinit
 }
 @objc @_inheritsConvenienceInitializers @objcMembers open class SBUBaseChannelViewController : UIKit.UIViewController {
+  @objc public var tableView: UIKit.UITableView {
+    @objc get
+  }
+  @objc public var messageInputView: SendBirdUIKit.SBUMessageInputView {
+    @objc get
+    @objc set
+  }
+  @objc public var userProfileView: UIKit.UIView? {
+    @objc get
+    @objc set
+  }
+  @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
+  @objc override dynamic open func loadView()
   @objc open func setupAutolayout()
   @objc open func setupStyles()
   @objc open func updateStyles()
+  @objc open func setUserProfileTapGestureHandler(_ user: SendBirdUIKit.SBUUser)
+  @objc public func keyboardWillShow(_ notification: Foundation.Notification)
+  @objc public func keyboardWillHide(_ notification: Foundation.Notification)
+  @objc public func dismissKeyboard()
+  @objc public func addGestureHideKeyboard()
   @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
   @objc required dynamic public init?(coder: Foundation.NSCoder)
   @objc deinit
 }
 extension SBUBaseChannelViewController : UIKit.UIGestureRecognizerDelegate {
   @objc dynamic open func gestureRecognizer(_ gestureRecognizer: UIKit.UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIKit.UIGestureRecognizer) -> Swift.Bool
+}
+extension SBUBaseChannelViewController : UIKit.UITableViewDelegate, UIKit.UITableViewDataSource {
+  @objc dynamic public func tableView(_ tableView: UIKit.UITableView, numberOfRowsInSection section: Swift.Int) -> Swift.Int
+  @objc dynamic public func tableView(_ tableView: UIKit.UITableView, cellForRowAt indexPath: Foundation.IndexPath) -> UIKit.UITableViewCell
+  @objc dynamic public func scrollViewDidScroll(_ scrollView: UIKit.UIScrollView)
+}
+extension SBUBaseChannelViewController : SendBirdUIKit.SBUUserProfileViewDelegate {
+  @objc dynamic open func didSelectMessage(userId: Swift.String?)
+  @objc dynamic open func didSelectClose()
 }
 @objc @objcMembers open class SBUModerationsViewController : UIKit.UIViewController, UIKit.UINavigationControllerDelegate {
   @objc public var titleView: UIKit.UIView? {
@@ -897,6 +887,7 @@ extension SBUBaseChannelViewController : UIKit.UIGestureRecognizerDelegate {
   }
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc public func loadChannel(channelUrl: Swift.String?)
   @objc public func freezeChannel(completionHandler: ((Swift.Bool) -> Swift.Void)? = nil)
   @objc public func unfreezeChannel(completionHandler: ((Swift.Bool) -> Swift.Void)? = nil)
@@ -925,10 +916,6 @@ extension SBUModerationsViewController {
     @objc get
     @objc set
   }
-  @objc public var messageInputView: SendBirdUIKit.SBUMessageInputView {
-    @objc get
-    @objc set
-  }
   @objc public var titleView: UIKit.UIView? {
     @objc get
     @objc set
@@ -949,13 +936,6 @@ extension SBUModerationsViewController {
     @objc get
     @objc set
   }
-  @objc public var tableView: UIKit.UITableView {
-    @objc get
-  }
-  @objc public var userProfileView: UIKit.UIView? {
-    @objc get
-    @objc set
-  }
   @objc public var theme: SendBirdUIKit.SBUChannelTheme
   @objc public var adminMessageCell: SendBirdUIKit.SBUBaseMessageCell? {
     get
@@ -970,12 +950,6 @@ extension SBUModerationsViewController {
     get
   }
   @objc public var unknownMessageCell: SendBirdUIKit.SBUBaseMessageCell? {
-    get
-  }
-  @objc public var messageInputViewBottomConstraint: UIKit.NSLayoutConstraint! {
-    get
-  }
-  @objc public var tableViewTopConstraint: UIKit.NSLayoutConstraint! {
     get
   }
   @objc public var channel: SendBirdSDK.SBDGroupChannel? {
@@ -1046,7 +1020,7 @@ extension SBUModerationsViewController {
   @objc public func setReaction(message: SendBirdSDK.SBDBaseMessage, emojiKey: Swift.String, didSelect: Swift.Bool)
   @objc public func sortAllMessageList(needReload: Swift.Bool)
   @objc public func updateMessagesInList(messages: [SendBirdSDK.SBDBaseMessage]?, needReload: Swift.Bool)
-  @objc public func upsertMessagesInList(messages: [SendBirdSDK.SBDBaseMessage]?, needUpdateNewMessage: Swift.Bool = true, needReload: Swift.Bool)
+  @objc public func upsertMessagesInList(messages: [SendBirdSDK.SBDBaseMessage]?, needUpdateNewMessage: Swift.Bool = false, needReload: Swift.Bool)
   @objc public func deleteMessagesInList(messageIds: [Swift.Int64], needReload: Swift.Bool)
   @objc public func deleteResendableMessages(requestIds: [Swift.String], needReload: Swift.Bool)
   @objc public func increaseNewMessageCount()
@@ -1067,7 +1041,6 @@ extension SBUModerationsViewController {
   @objc @available(*, deprecated, renamed: "setEmojiLongTapGestureHandler(_:emojiKey:)", message: "deprecated in 1.2.2")
   open func setLongTapEmojiGestureHandler(_ cell: SendBirdUIKit.SBUBaseMessageCell, emojiKey: Swift.String)
   @objc open func setEmojiLongTapGestureHandler(_ cell: SendBirdUIKit.SBUBaseMessageCell, emojiKey: Swift.String)
-  @objc open func setUserProfileTapGestureHandler(_ user: SendBirdUIKit.SBUUser)
   @objc public func updateMessageInputModeState()
   @objc public func checkSameDayAsNextMessage(currentIndex: Swift.Int) -> Swift.Bool
   @objc public func configureOffset()
@@ -1076,24 +1049,18 @@ extension SBUModerationsViewController {
   @objc public func onClickBack()
   @objc public func onClickSetting()
   @objc public func scrollToBottom(animated: Swift.Bool)
-  @objc public func scrollViewDidScroll(_ scrollView: UIKit.UIScrollView)
+  @objc override dynamic public func scrollViewDidScroll(_ scrollView: UIKit.UIScrollView)
   @objc open func setUserMessageCellGestures(_ cell: SendBirdUIKit.SBUUserMessageCell, userMessage: SendBirdSDK.SBDUserMessage, indexPath: Foundation.IndexPath)
   @objc open func setFileMessageCellGestures(_ cell: SendBirdUIKit.SBUFileMessageCell, fileMessage: SendBirdSDK.SBDFileMessage, indexPath: Foundation.IndexPath)
   @objc open func setUnkownMessageCellGestures(_ cell: SendBirdUIKit.SBUUnknownMessageCell, unknownMessage: SendBirdSDK.SBDBaseMessage, indexPath: Foundation.IndexPath)
   @objc public func calculatorMenuPoint(indexPath: Foundation.IndexPath, position: SendBirdUIKit.MessagePosition) -> CoreGraphics.CGPoint
   public func showMenuViewController(_ cell: SendBirdUIKit.SBUBaseMessageCell, message: SendBirdSDK.SBDBaseMessage, types: [SendBirdUIKit.MessageMenuItem])
   public func showMenuModal(_ cell: SendBirdUIKit.SBUBaseMessageCell, indexPath: Foundation.IndexPath, message: SendBirdSDK.SBDBaseMessage, types: [SendBirdUIKit.MessageMenuItem])
-  @objc public func keyboardWillShow(_ notification: Foundation.Notification)
-  @objc public func keyboardWillHide(_ notification: Foundation.Notification)
-  @objc public func dismissKeyboard()
-  @objc public func addGestureHideKeyboard()
   @objc open func didReceiveError(_ message: Swift.String?)
-}
-extension SBUChannelViewController : UIKit.UITableViewDelegate, UIKit.UITableViewDataSource {
-  @objc dynamic open func tableView(_ tableView: UIKit.UITableView, cellForRowAt indexPath: Foundation.IndexPath) -> UIKit.UITableViewCell
-  @objc dynamic open func tableView(_ tableView: UIKit.UITableView, willDisplay cell: UIKit.UITableViewCell, forRowAt indexPath: Foundation.IndexPath)
-  @objc dynamic open func tableView(_ tableView: UIKit.UITableView, numberOfRowsInSection section: Swift.Int) -> Swift.Int
-  @objc dynamic open func generateCellIdentifier(by message: SendBirdSDK.SBDBaseMessage) -> Swift.String
+  @objc override dynamic open func tableView(_ tableView: UIKit.UITableView, cellForRowAt indexPath: Foundation.IndexPath) -> UIKit.UITableViewCell
+  @objc open func tableView(_ tableView: UIKit.UITableView, willDisplay cell: UIKit.UITableViewCell, forRowAt indexPath: Foundation.IndexPath)
+  @objc override dynamic open func tableView(_ tableView: UIKit.UITableView, numberOfRowsInSection section: Swift.Int) -> Swift.Int
+  @objc open func generateCellIdentifier(by message: SendBirdSDK.SBDBaseMessage) -> Swift.String
 }
 extension SBUChannelViewController : UIKit.UIViewControllerTransitioningDelegate {
   @objc dynamic open func presentationController(forPresented presented: UIKit.UIViewController, presenting: UIKit.UIViewController?, source: UIKit.UIViewController) -> UIKit.UIPresentationController?
@@ -1119,10 +1086,6 @@ extension SBUChannelViewController {
 }
 extension SBUChannelViewController : SendBirdUIKit.SBUEmptyViewDelegate {
   @objc dynamic open func didSelectRetry()
-}
-extension SBUChannelViewController : SendBirdUIKit.SBUUserProfileViewDelegate {
-  @objc dynamic open func didSelectMessage(userId: Swift.String?)
-  @objc dynamic open func didSelectClose()
 }
 extension SBUChannelViewController : SendBirdSDK.SBDChannelDelegate, SendBirdSDK.SBDConnectionDelegate {
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, didReceive message: SendBirdSDK.SBDBaseMessage)
@@ -1316,6 +1279,7 @@ extension SBUChannelViewController {
   }
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc public func loadChannel(channelUrl: Swift.String?)
   @objc public func updateChannel(channelName: Swift.String? = nil, coverImage: UIKit.UIImage? = nil)
   @objc public func updateChannel(params: SendBirdSDK.SBDOpenChannelParams)
@@ -1501,6 +1465,7 @@ extension SBUOpenChannelSettingsViewController : SendBirdSDK.SBDChannelDelegate 
   }
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc deinit
   @objc public func loadNextUserList(reset: Swift.Bool, users: [SendBirdUIKit.SBUUser]? = nil)
   @objc open func nextUserList() -> [SendBirdUIKit.SBUUser]?
@@ -2081,6 +2046,7 @@ public class MessageStateView : SendBirdUIKit.SBUMessageStateView {
   }
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc public func loadChannel(channelUrl: Swift.String?)
   @objc @available(*, deprecated, renamed: "updateChannel(channelName:coverImage:)", message: "deprecated in 1.0.9")
   public func updateChannelInfo(channelName: Swift.String? = nil)
@@ -2725,6 +2691,7 @@ extension UIImage {
   @objc override dynamic open func viewDidLoad()
   @objc override dynamic open func viewDidLayoutSubviews()
   @objc override dynamic open func viewWillAppear(_ animated: Swift.Bool)
+  @objc override dynamic open func viewWillDisappear(_ animated: Swift.Bool)
   @objc deinit
   @objc public func loadChannel(channelUrl: Swift.String?)
   @objc public func loadNextMemberList(reset: Swift.Bool, members: [SendBirdUIKit.SBUUser]? = nil)
