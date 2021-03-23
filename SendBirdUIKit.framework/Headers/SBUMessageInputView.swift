@@ -27,7 +27,7 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
     public lazy var textView: UITextView? = _textView
     public lazy var sendButton: UIButton? = _sendButton
 
-    public lazy var editView = UIView()
+    public lazy var editView: UIView = _editView
     public lazy var cancelButton: UIButton? = _cancelButton
     public lazy var saveButton: UIButton? = _saveButton
     
@@ -66,6 +66,8 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
     lazy var _addButton: UIButton = {
         let button = UIButton(type: .custom)
         button.addTarget(self, action: #selector(onClickAddButton(_:)), for: .touchUpInside)
+        button.isHidden = false
+        button.alpha = 1
         return button
     }()
     
@@ -78,10 +80,19 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
         return tv
     }()
     
+    lazy var _editView: UIView = {
+        let editView = UIView()
+        editView.isHidden = true
+        editView.alpha = 0
+        return editView
+    }()
+    
     lazy var _sendButton: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = 4
         button.addTarget(self, action: #selector(onClickSendButton(_:)), for: .touchUpInside)
+        button.isHidden = true
+        button.alpha = 0
         return button
     }()
     
@@ -237,7 +248,7 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
     
     /// This function handles the initialization of styles.
     open func setupStyles() {
-        self.theme = self.isOverlay ? SBUMessageInputTheme.overlay : SBUTheme.messageInputTheme
+        self.theme = self.isOverlay ? SBUTheme.overlayTheme.messageInputTheme : SBUTheme.messageInputTheme
         
         self.backgroundColor = theme.backgroundColor
 
@@ -264,16 +275,21 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
         self.textView?.font = theme.textFieldPlaceholderFont
         
         // addButton
-        let iconAdd = SBUIconSet.iconAdd
-            .sbu_with(tintColor:
-                (self.isFrozen || self.isMuted)
-                ? theme.buttonDisabledTintColor
-                : theme.buttonTintColor)
+        let iconAdd = SBUIconSetType.iconAdd
+            .image(with:
+                    (self.isFrozen || self.isMuted)
+                    ? theme.buttonDisabledTintColor
+                    : theme.buttonTintColor,
+                   to: SBUIconSetType.Metric.defaultIconSizeLarge)
         self.addButton?.setImage(iconAdd, for: .normal)
         
         // IconSend
-        self.sendButton?.setImage(SBUIconSet.iconSend
-            .sbu_with(tintColor: theme.buttonTintColor), for: .normal)
+        self.sendButton?.setImage(
+            SBUIconSetType.iconSend.image(
+                with: theme.buttonTintColor,
+                to: SBUIconSetType.Metric.defaultIconSize
+            ),
+            for: .normal)
         
         // cancelButton
         self.cancelButton?.setTitleColor(theme.buttonTintColor, for: .normal)
@@ -285,9 +301,18 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
         self.saveButton?.titleLabel?.font = theme.saveButtonFont
         
         // Item
-        self.cameraItem.image = SBUIconSet.iconCamera.sbu_with(tintColor: theme.buttonTintColor)
-        self.libraryItem.image = SBUIconSet.iconPhoto.sbu_with(tintColor: theme.buttonTintColor)
-        self.documentItem.image = SBUIconSet.iconDocument.sbu_with(tintColor: theme.buttonTintColor)
+        self.cameraItem.image = SBUIconSetType.iconCamera.image(
+            with: theme.buttonTintColor,
+            to: SBUIconSetType.Metric.iconActionSheetItem
+        )
+        self.libraryItem.image = SBUIconSetType.iconPhoto.image(
+            with: theme.buttonTintColor,
+            to: SBUIconSetType.Metric.iconActionSheetItem
+        )
+        self.documentItem.image = SBUIconSetType.iconDocument.image(
+            with: theme.buttonTintColor,
+            to: SBUIconSetType.Metric.iconActionSheetItem
+        )
         self.cancelItem.color = theme.buttonTintColor
     }
     
@@ -366,6 +391,17 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
             self.endEditMode()
             self.endTypingMode()
         }
+        self.setupStyles()
+    }
+    
+    /// Sets error state. Disable all
+    public func setErrorState() {
+        self.textView?.isEditable = false
+        self.textView?.isUserInteractionEnabled = false
+        self.addButton?.isEnabled = false
+        
+        self.endEditMode()
+        self.endTypingMode()
         self.setupStyles()
     }
     

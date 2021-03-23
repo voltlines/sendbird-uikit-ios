@@ -19,6 +19,21 @@ public typealias SBUActionSheetHandler = () -> Void
 public class SBUActionSheetItem: SBUCommonItem {
     var completionHandler: SBUActionSheetHandler?
     
+    public override init(title: String? = nil,
+                         color: UIColor? = SBUColorSet.onlight01,
+                         image: UIImage? = nil,
+                         font: UIFont? = nil,
+                         tintColor: UIColor? = nil,
+                         textAlignment: NSTextAlignment = .left) {
+        super.init(title: title,
+                   color: color,
+                   image: image,
+                   font: font,
+                   tintColor: tintColor,
+                   textAlignment: textAlignment)
+        self.completionHandler = nil
+    }
+    
     /// This function initializes actionSheet item.
     /// - Parameters:
     ///   - title: Title text

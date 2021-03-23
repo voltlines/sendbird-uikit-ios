@@ -103,7 +103,7 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
     public func configure(_ message: SBDUserMessage,
                           hideDateView: Bool,
                           groupPosition: MessageGroupPosition,
-                          receiptState: SBUMessageReceiptState) {
+                          receiptState: SBUMessageReceiptState?) {
         self.configure(
             message,
             hideDateView: hideDateView,
@@ -115,7 +115,7 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
     
     public func configure(_ message: SBDBaseMessage,
                           hideDateView: Bool,
-                          receiptState: SBUMessageReceiptState,
+                          receiptState: SBUMessageReceiptState?,
                           groupPosition: MessageGroupPosition,
                           withTextView: Bool) {
 
@@ -151,7 +151,20 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
         }
     }
     
-   
+    /// Adds highlight attribute to the message
+    func configure(hightlightInfo: SBUHighlightMessageInfo) {
+        guard let messageTextView = messageTextView as? SBUUserMessageTextView else { return }
+        
+        messageTextView.configure(
+            model: SBUUserMessageCellModel(
+                message: message,
+                position: position,
+                highlightInfo: hightlightInfo
+            )
+        )
+    }
+    
+    
     // MARK: - Action
     public override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)

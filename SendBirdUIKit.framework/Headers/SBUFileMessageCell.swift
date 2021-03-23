@@ -53,21 +53,11 @@ open class SBUFileMessageCell: SBUContentBaseMessageCell {
         self.baseFileContentView.setupStyles()
     }
     
-    open override func prepareForReuse() {
-        super.prepareForReuse()
-        
-        guard let imageContentView = self.baseFileContentView as? ImageContentView else { return }
-        imageContentView.task?.cancel()
-        imageContentView.task = nil
-//        imageContentView.imageView.image = nil
-    }
-
-    
     // MARK: - Common
     public func configure(_ message: SBDFileMessage,
                           hideDateView: Bool,
                           groupPosition: MessageGroupPosition,
-                          receiptState: SBUMessageReceiptState) {
+                          receiptState: SBUMessageReceiptState?) {
 
         let position = SBUGlobals.CurrentUser?.userId == message.sender?.userId ?
             MessagePosition.right :
@@ -155,17 +145,17 @@ fileprivate class ImageContentView: BaseFileContentView {
         return imageView
     }()
     
-    var task: URLSessionTask?
     var widthConstraint: NSLayoutConstraint!
     var heightConstraint: NSLayoutConstraint!
     
     var text: String = ""
     
-    var maxWidth: CGFloat = 240
-    var minWidth: CGFloat = 100
-    
-    var maxHeight: CGFloat = 400
-    var minHeight: CGFloat = 100
+    // MARK: - Properties (Private)
+    private var loadImageSession: URLSessionTask? {
+        willSet {
+            loadImageSession?.cancel()
+        }
+    }
 
     init() {
         super.init(frame: .zero)
@@ -205,10 +195,10 @@ fileprivate class ImageContentView: BaseFileContentView {
         )
         
         self.widthConstraint = self.imageView.widthAnchor.constraint(
-            equalToConstant: self.minWidth
+            equalToConstant: SBUConstant.thumbnailSize.width
         )
         self.heightConstraint = self.imageView.heightAnchor.constraint(
-            equalToConstant: self.minHeight
+            equalToConstant: SBUConstant.thumbnailSize.height
         )
 
         NSLayoutConstraint.activate([
@@ -261,9 +251,9 @@ fileprivate class ImageContentView: BaseFileContentView {
             }
         }
 
-        self.resizeImageView(by: thumbnail?.realSize ?? SBUConstant.thumbnailSize)
+        self.resizeImageView(by: SBUConstant.thumbnailSize)
 
-        self.imageView.loadImage(urlString: urlString, option: imageOption) { [weak self] _ in
+        self.loadImageSession = self.imageView.loadImage(urlString: urlString, option: imageOption) { [weak self] _ in
             self?.setFileIcon()
         }
 
@@ -282,21 +272,32 @@ fileprivate class ImageContentView: BaseFileContentView {
     func setFileIcon() {
         switch SBUUtils.getFileType(by: self.message) {
         case .video:
-            self.iconImageView.image = SBUIconSet.iconPlay
+            self.iconImageView.image = SBUIconSetType.iconPlay.image(to: SBUIconSetType.Metric.iconGifPlay)
+            
+            self.iconImageView.backgroundColor = SBUColorSet.ondark01
+            self.iconImageView.layer.cornerRadius = self.iconImageView.frame.height / 2
             
         case .image where message.type.hasPrefix("image/gif"):
             let isThumbnailAnimated = self.imageView.image?.isAnimatedImage() == true
-            self.iconImageView.image = isThumbnailAnimated ? nil : SBUIconSet.iconGif
+            self.iconImageView.image = isThumbnailAnimated ? nil : SBUIconSetType.iconGif.image(to: SBUIconSetType.Metric.iconGifPlay)
+            
+            self.iconImageView.backgroundColor = SBUColorSet.ondark01
+            self.iconImageView.layer.cornerRadius = self.iconImageView.frame.height / 2
             
         default:
+            self.iconImageView.backgroundColor = nil
             switch self.message.sendingStatus {
             case .canceled, .failed:
-                self.iconImageView.image = SBUIconSet.iconNoThumbnailLight
-                    .sbu_with(tintColor: theme.fileMessagePlaceholderColor)
+                self.iconImageView.image = SBUIconSetType.iconThumbnailNone.image(
+                    with: theme.fileMessagePlaceholderColor,
+                    to: SBUIconSetType.Metric.defaultIconSizeXLarge
+                )
             default:
                 if self.imageView.image == nil {
-                    self.iconImageView.image = SBUIconSet.iconThumbnailLight
-                        .sbu_with(tintColor: theme.fileMessagePlaceholderColor)
+                    self.iconImageView.image = SBUIconSetType.iconPhoto.image(
+                        with: theme.fileMessagePlaceholderColor,
+                        to: SBUIconSetType.Metric.defaultIconSizeXLarge
+                    )
                 } else {
                     self.iconImageView.image = nil
                 }
@@ -305,14 +306,11 @@ fileprivate class ImageContentView: BaseFileContentView {
     }
     
     func resizeImageView(by size: CGSize) {
+        SBULog.error("resize to : \(size)")
         let width = size.width
         let height = size.height
-        self.widthConstraint.constant = width < self.minWidth
-            ? self.minWidth
-            : min(width, self.maxWidth)
-        self.heightConstraint.constant = height < self.minHeight
-            ?self.minHeight
-            : min(height, self.maxHeight)
+        self.widthConstraint.constant = min(width, SBUConstant.thumbnailSize.width)
+        self.heightConstraint.constant = min(height, SBUConstant.thumbnailSize.height)
     }
 }
 
@@ -356,12 +354,12 @@ fileprivate class CommonContentView: BaseFileContentView {
     }
 
     func setupViews() {
-        self.layer.cornerRadius = 16
+        self.layer.cornerRadius = 8
         self.layer.borderColor = UIColor.clear.cgColor
         self.layer.borderWidth = 1
         self.clipsToBounds = true
         
-        self.fileImageView.layer.cornerRadius = 10
+        self.fileImageView.layer.cornerRadius = 8
         self.fileImageView.layer.borderColor = UIColor.clear.cgColor
         self.fileImageView.layer.borderWidth = 1
         
@@ -374,12 +372,12 @@ fileprivate class CommonContentView: BaseFileContentView {
     func setupAutolayout() {
         self.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            self.heightAnchor.constraint(equalToConstant: 44),
-            self.widthAnchor.constraint(lessThanOrEqualToConstant: 240)
+            self.heightAnchor.constraint(equalToConstant: 56),
+            self.widthAnchor.constraint(lessThanOrEqualToConstant: SBUConstant.thumbnailSize.width)
         ])
 
         self.stackView.setConstraint(from: self, left: 12, right: 12, top: 8, bottom: 8)
-        self.fileImageView.setConstraint(width: 28, height: 28)
+        self.fileImageView.setConstraint(width: 40, height: 40)
     }
     
     override func setupStyles() {
@@ -405,11 +403,16 @@ fileprivate class CommonContentView: BaseFileContentView {
         
         let image: UIImage
         switch type {
-        case .audio: image = SBUIconSet.iconFileAudio.sbu_with(tintColor: theme.fileIconColor)
-        case .image: image = SBUIconSet.iconFileDocument.sbu_with(tintColor: theme.fileIconColor)
-        case .video: image = SBUIconSet.iconFileDocument.sbu_with(tintColor: theme.fileIconColor)
-        case .pdf  : image = SBUIconSet.iconFileDocument.sbu_with(tintColor: theme.fileIconColor)
-        case .etc  : image = SBUIconSet.iconFileDocument.sbu_with(tintColor: theme.fileIconColor)
+        case .audio:
+            image = SBUIconSetType.iconFileAudio.image(
+                with: theme.fileIconColor,
+                to: SBUIconSetType.Metric.defaultIconSizeLarge
+            )
+        case .image, .video, .pdf, .etc:
+            image = SBUIconSetType.iconFileDocument.image(
+                with: theme.fileIconColor,
+                to: SBUIconSetType.Metric.defaultIconSizeLarge
+            )
         }
         
         self.fileImageView.image = image

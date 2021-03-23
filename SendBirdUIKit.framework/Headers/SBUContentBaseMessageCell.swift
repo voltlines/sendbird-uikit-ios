@@ -21,7 +21,6 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
     public lazy var profileView: UIView = _profileView
     public lazy var stateView: UIView = _stateView
 
-    
     // MARK: - Private property
     internal var _userNameStackView: UIStackView = {
         let stackView = UIStackView()
@@ -40,7 +39,7 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.alignment = .bottom
-        stackView.spacing = 12
+        stackView.spacing = 4
         return stackView
     }()
     
@@ -68,6 +67,11 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
         return reactionView
     }()
     
+    internal lazy var profileContentSpacing: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
     
     // MARK: - View Lifecycle
     open override func setupViews() {
@@ -77,6 +81,7 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
         self.profileView.isHidden = true
         
         self.contentsStackView.addArrangedSubview(self.profileView)
+        self.contentsStackView.addArrangedSubview(self.profileContentSpacing)
         self.contentsStackView.addArrangedSubview(self.mainContainerView)
         self.contentsStackView.addArrangedSubview(self.stateView)
         
@@ -89,6 +94,11 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
     open override func setupAutolayout() {
         super.setupAutolayout()
 
+        NSLayoutConstraint.activate([
+            self.profileContentSpacing.widthAnchor.constraint(equalToConstant: 4),
+            self.profileContentSpacing.heightAnchor.constraint(equalToConstant: 4)
+        ])
+        
         self.userNameStackView
             .setConstraint(from: self.messageContentView, left: 12, right: 12, bottom: 0)
             .setConstraint(from: self.messageContentView, top: 0, priority: .defaultLow)
@@ -153,14 +163,16 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
                           hideDateView: Bool,
                           position: MessagePosition,
                           groupPosition: MessageGroupPosition,
-                          receiptState: SBUMessageReceiptState) {
+                          receiptState: SBUMessageReceiptState?) {
 
+        // nil for super/broadcast channel which doesn't support receipts.
+        // Kept receipt to .none for backward compatibility as this configure() is *open*.
         super.configure(
             message: message,
             position: position,
             hideDateView: hideDateView,
             groupPosition: groupPosition,
-            receiptState: receiptState
+            receiptState: receiptState ?? .none
         )
         
         self.reactionView.configure(
@@ -210,6 +222,7 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
         case .left:
             self.userNameStackView.alignment = .leading
             self.contentsStackView.addArrangedSubview(self.profileView)
+            self.contentsStackView.addArrangedSubview(self.profileContentSpacing)
             self.contentsStackView.addArrangedSubview(self.mainContainerView)
             self.contentsStackView.addArrangedSubview(self.stateView)
             
@@ -217,6 +230,7 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
             self.userNameStackView.alignment = .trailing
             self.contentsStackView.addArrangedSubview(self.stateView)
             self.contentsStackView.addArrangedSubview(self.mainContainerView)
+            self.contentsStackView.addArrangedSubview(self.profileContentSpacing)
             
         case .center:
             break

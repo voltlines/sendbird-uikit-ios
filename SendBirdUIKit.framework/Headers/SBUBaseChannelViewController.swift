@@ -9,7 +9,7 @@
 import UIKit
 
 @objcMembers
-open class SBUBaseChannelViewController: UIViewController {
+open class SBUBaseChannelViewController: SBUBaseViewController {
     
     // MARK: - Properties (View)
     
@@ -80,13 +80,11 @@ open class SBUBaseChannelViewController: UIViewController {
         self.tableView.separatorStyle = .none
         self.tableView.allowsSelection = false
         self.tableView.keyboardDismissMode = .interactive
+        self.tableView.bounces = false
+        self.tableView.alwaysBounceVertical = false
     }
-    
-    open func setupAutolayout() {}
-    
-    open func setupStyles() {}
-    
-    open func updateStyles() {
+
+    open override func updateStyles() {
         if let userProfileView = self.userProfileView as? SBUUserProfileView {
             userProfileView.setupStyles()
         }

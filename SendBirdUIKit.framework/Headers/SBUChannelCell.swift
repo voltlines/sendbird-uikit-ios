@@ -155,16 +155,17 @@ public class SBUChannelCell: SBUBaseChannelCell {
         self.unreadCount.setTitleColor(theme.unreadCountTextColor, for: .normal)
         self.unreadCount.titleLabel?.font = theme.unreadCountFont
         
-        self.broadcastIcon.image = SBUIconSet.iconBroadcastSmall.sbu_with(
-            tintColor: theme.broadcastMarkTintColor
+        self.broadcastIcon.image = SBUIconSetType.iconBroadcast.image(
+            with: theme.broadcastMarkTintColor,
+            to: SBUIconSetType.Metric.defaultIconSize
         )
-        
-        self.freezeState.image = SBUIconSet.iconFreeze.sbu_with(
-            tintColor: theme.freezeStateTintColor
+        self.freezeState.image = SBUIconSetType.iconFreeze.image(
+            with: theme.freezeStateTintColor,
+            to: SBUIconSetType.Metric.defaultIconSize
         )
-        
-        self.notificationState.image = SBUIconSet.iconMute.sbu_with(
-            tintColor: theme.messageTextColor
+        self.notificationState.image = SBUIconSetType.iconMute.image(
+            with: theme.messageTextColor,
+            to: SBUIconSetType.Metric.defaultIconSize
         )
         
         self.separatorLine.backgroundColor = theme.separatorLineColor

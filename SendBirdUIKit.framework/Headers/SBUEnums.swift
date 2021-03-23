@@ -22,12 +22,13 @@
     case moderations
     case notifications
     case members
+    case search
     case leave
     
     static func allTypes(isOperator: Bool) -> [ChannelSettingItemType] {
         return isOperator
-            ? [.moderations, notifications, members, leave]
-            : [.notifications, members, leave]
+            ? [.moderations, notifications, members, search, leave]
+            : [.notifications, members, search, leave]
     }
 }
 
@@ -109,6 +110,7 @@
     case noMessages
     case noMutedMembers
     case noBannedMembers
+    case noSearchResults
     case error
 }
 
@@ -179,7 +181,6 @@
     case tooltip
     case button
 }
-
 
 @objc public enum LogType: UInt8 {
     case none    = 0b00000000
