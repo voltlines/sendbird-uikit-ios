@@ -253,7 +253,7 @@ open class SBUUserCell: UITableViewCell {
         self.userImageView.contentMode = .scaleAspectFill
         
         self.mutedStateImageView.isHidden = !user.isMuted
-        self.operatorLabel.isHidden = !user.isOperator
+        self.operatorLabel.isHidden = type == .operators || !user.isOperator
 
         self.separateView.isHidden = false
         self.checkboxButton.isHidden = true
@@ -284,7 +284,6 @@ open class SBUUserCell: UITableViewCell {
             self.separateView.isHidden = true
            
         case .operators:
-            self.operatorLabel.isHidden = false
             self.moreButton.isHidden = false
             self.moreButton.isEnabled = !isMe
             

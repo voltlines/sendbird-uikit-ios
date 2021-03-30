@@ -280,7 +280,7 @@ open class SBUMessageInputView: UIView, SBUActionSheetDelegate, UITextViewDelega
                     (self.isFrozen || self.isMuted)
                     ? theme.buttonDisabledTintColor
                     : theme.buttonTintColor,
-                   to: SBUIconSetType.Metric.defaultIconSizeLarge)
+                   to: SBUIconSetType.Metric.defaultIconSize)
         self.addButton?.setImage(iconAdd, for: .normal)
         
         // IconSend

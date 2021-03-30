@@ -135,16 +135,14 @@ class SBUCreateChannelTypeSelector: UIView, SBUCreateChannelTypeSelectorProtocol
         )
         
         self.navigationItem.rightBarButtonItem?.tintColor = self.theme.closeBarButtonTintColor
-    }
-    
-    public func updateStyles() {
-        self.theme = SBUTheme.componentTheme
-
-        self.setupStyles()
         
         self.updateButton(type: .group)
         self.updateButton(type: .supergroup)
         self.updateButton(type: .broadcast)
+    }
+    
+    public func updateStyles() {
+        self.setupStyles()
     }
     
     func setupAutolayout() {

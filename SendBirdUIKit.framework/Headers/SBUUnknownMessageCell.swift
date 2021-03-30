@@ -10,7 +10,7 @@ import UIKit
 
 @objcMembers
 open class SBUUnknownMessageCell: SBUUserMessageCell {
-    public override func configure(_ message: SBDBaseMessage,
+    open override func configure(_ message: SBDBaseMessage,
                                    hideDateView: Bool,
                                    groupPosition: MessageGroupPosition,
                                    receiptState: SBUMessageReceiptState?) {

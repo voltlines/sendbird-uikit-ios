@@ -223,6 +223,10 @@ open class SBUChannelListViewController: SBUBaseChannelListViewController {
         self.leftBarButton?.tintColor = theme.leftBarButtonTintColor
         self.rightBarButton?.tintColor = theme.rightBarButtonTintColor
         
+        if let createChannelTypeSelector = self.createChannelTypeSelector as? SBUCreateChannelTypeSelector {
+            createChannelTypeSelector.setupStyles()
+        }
+        
         self.view.backgroundColor = theme.backgroundColor
         self.tableView.backgroundColor = theme.backgroundColor
     }
@@ -279,7 +283,6 @@ open class SBUChannelListViewController: SBUBaseChannelListViewController {
     
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNeedsStatusBarAppearanceUpdate()
         
         if self.isLoading { return }
         

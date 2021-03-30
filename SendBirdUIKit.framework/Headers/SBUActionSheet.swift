@@ -67,6 +67,14 @@ public class SBUActionSheet: NSObject {
     weak var delegate: SBUActionSheetDelegate?
     private var items: [SBUActionSheetItem] = []
     
+    private var safeAreaInset: UIEdgeInsets {
+        if #available(iOS 11.0, *) {
+            return self.window?.safeAreaInsets ?? .zero
+        } else {
+            return .zero
+        }
+    }
+    
     var identifier: Int = -1
     var window: UIWindow? = nil
     var baseView = UIView()
@@ -158,9 +166,9 @@ public class SBUActionSheet: NSObject {
         
         // Set items
         let totalHeight = CGFloat(items.count + 1) * itemHeight + sideMargin + bottomMargin
-        let itemWidth = window.frame.width - (sideMargin * 2)
+        let itemWidth = window.frame.width - (sideMargin * 2) - (self.safeAreaInset.left + self.safeAreaInset.right)
         self.baseView.frame = CGRect(
-            origin: CGPoint(x: sideMargin, y: window.frame.height - totalHeight),
+            origin: CGPoint(x: sideMargin + self.safeAreaInset.left, y: window.frame.height - totalHeight),
             size: CGSize(width: itemWidth, height: totalHeight)
         )
         
@@ -233,7 +241,7 @@ public class SBUActionSheet: NSObject {
                            isBottom: Bool) -> UIButton {
         
         let width:CGFloat = (self.window?.bounds.width ?? self.baseView.frame.width)
-        let itemWidth: CGFloat = width - (self.sideMargin * 2)
+        let itemWidth: CGFloat = width - (self.sideMargin * 2) - (self.safeAreaInset.left + self.safeAreaInset.right)
         let itemButton = UIButton(
             frame: CGRect(
                 origin: .zero,
@@ -275,7 +283,7 @@ public class SBUActionSheet: NSObject {
         )
         titleLabel.text = item.title
         titleLabel.font = item.font ?? theme.actionSheetTextFont
-        titleLabel.textColor = item.color ?? theme.titleColor
+        titleLabel.textColor = item.color ?? theme.actionSheetTextColor
         titleLabel.textAlignment = item.textAlignment
         
         itemButton.addSubview(titleLabel)
@@ -314,7 +322,7 @@ public class SBUActionSheet: NSObject {
     
     private func makeCancelItem(item: SBUActionSheetItem) -> UIButton {
         let width:CGFloat = (self.window?.bounds.width ?? self.baseView.frame.width)
-        let itemWidth: CGFloat = width - (self.sideMargin*2)
+        let itemWidth: CGFloat = width - (self.sideMargin * 2) - (self.safeAreaInset.left + self.safeAreaInset.right)
         let itemButton = UIButton(
             frame: CGRect(
                 origin: .zero,

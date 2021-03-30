@@ -271,7 +271,6 @@ open class SBUInviteUserViewController: SBUBaseViewController {
 
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNeedsStatusBarAppearanceUpdate()
         
         self.updateStyles()
     }

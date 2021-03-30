@@ -72,6 +72,16 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
         return view
     }()
     
+    // MARK: - Gesture Recognizers
+    
+    lazy var contentLongPressRecognizer: UILongPressGestureRecognizer = {
+        return .init(target: self, action: #selector(self.onLongPressContentView(sender:)))
+    }()
+    
+    lazy var contentTapRecognizer: UITapGestureRecognizer = {
+        return .init(target: self, action: #selector(self.onTapContentView(sender:)))
+    }()
+
     
     // MARK: - View Lifecycle
     open override func setupViews() {
@@ -159,7 +169,7 @@ open class SBUContentBaseMessageCell: SBUBaseMessageCell {
     
     
     // MARK: - Common
-    public func configure(_ message: SBDBaseMessage,
+    open func configure(_ message: SBDBaseMessage,
                           hideDateView: Bool,
                           position: MessagePosition,
                           groupPosition: MessageGroupPosition,

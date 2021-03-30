@@ -10,7 +10,7 @@ import UIKit
 import SendBirdSDK
 
 @objcMembers
-open class SBUCreateChannelViewController: SBUBaseViewController, UINavigationControllerDelegate {
+open class SBUCreateChannelViewController: SBUBaseViewController {
     
     // MARK: - UI properties (Public)
     public var titleView: UIView? = nil {
@@ -212,7 +212,6 @@ open class SBUCreateChannelViewController: SBUBaseViewController, UINavigationCo
 
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNeedsStatusBarAppearanceUpdate()
 
         self.updateStyles()
     }

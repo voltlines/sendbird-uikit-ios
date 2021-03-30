@@ -11,7 +11,7 @@ import Photos
 import MobileCoreServices
 
 @objcMembers
-open class SBUOpenChannelSettingsViewController: SBUBaseViewController, UINavigationControllerDelegate {
+open class SBUOpenChannelSettingsViewController: SBUBaseViewController {
     
     // MARK: - UI properties (Public)
     public lazy var userInfoView: UIView? = _userInfoView
@@ -241,7 +241,6 @@ open class SBUOpenChannelSettingsViewController: SBUBaseViewController, UINaviga
 
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNeedsStatusBarAppearanceUpdate()
         
         self.updateStyles()
     }

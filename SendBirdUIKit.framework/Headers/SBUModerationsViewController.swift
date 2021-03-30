@@ -9,7 +9,7 @@
 import UIKit
 
 @objcMembers
-open class SBUModerationsViewController: SBUBaseViewController, UINavigationControllerDelegate {
+open class SBUModerationsViewController: SBUBaseViewController {
     
     // MARK: - UI properties (Public)
     public var titleView: UIView? = nil {
@@ -190,7 +190,6 @@ open class SBUModerationsViewController: SBUBaseViewController, UINavigationCont
     
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNeedsStatusBarAppearanceUpdate()
         
         self.updateStyles()
     }

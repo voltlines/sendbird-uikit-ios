@@ -23,14 +23,6 @@ open class SBUFileMessageCell: SBUContentBaseMessageCell {
         return fileView
     }()
     
-    private lazy var contentLongPressRecognizer: UILongPressGestureRecognizer = {
-        return .init(target: self, action: #selector(self.onLongPressContentView(sender:)))
-    }()
-    
-    private lazy var contentTapRecognizer: UITapGestureRecognizer = {
-        return .init(target: self, action: #selector(self.onTapContentView(sender:)))
-    }()
-    
     // MARK: - View Lifecycle
     open override func setupViews() {
         super.setupViews()
@@ -54,7 +46,7 @@ open class SBUFileMessageCell: SBUContentBaseMessageCell {
     }
     
     // MARK: - Common
-    public func configure(_ message: SBDFileMessage,
+    open func configure(_ message: SBDFileMessage,
                           hideDateView: Bool,
                           groupPosition: MessageGroupPosition,
                           receiptState: SBUMessageReceiptState?) {
@@ -92,6 +84,19 @@ open class SBUFileMessageCell: SBUContentBaseMessageCell {
             }
             self.baseFileContentView.configure(message: message, position: position)
         }
+    }
+    
+    open func configure(highlightInfo: SBUHighlightMessageInfo?) {
+        // Only apply highlight for the given message, that's not edited (updatedAt didn't change)
+        guard self.message.messageId == highlightInfo?.messageId,
+              self.message.updatedAt == highlightInfo?.updatedAt else { return }
+        
+        guard let commonContentView = self.baseFileContentView as? CommonContentView,
+              let fileMessage = self.fileMessage else { return }
+        
+        commonContentView.configure(message: fileMessage,
+                                    position: self.position,
+                                    highlight: true)
     }
     
     /// This method has to be called in main thread
@@ -209,6 +214,7 @@ fileprivate class ImageContentView: BaseFileContentView {
         self.iconImageView
             .setConstraint(from: self, centerX: true, centerY: true)
             .setConstraint(width: 48, height: 48)
+        self.iconImageView.layoutIfNeeded()
     }
 
     override func setupStyles() {
@@ -272,18 +278,19 @@ fileprivate class ImageContentView: BaseFileContentView {
     func setFileIcon() {
         switch SBUUtils.getFileType(by: self.message) {
         case .video:
-            self.iconImageView.image = SBUIconSetType.iconPlay.image(to: SBUIconSetType.Metric.iconGifPlay)
+            self.iconImageView.image = SBUIconSetType.iconPlay.image(with: theme.fileImageIconColor,
+                                                                     to: SBUIconSetType.Metric.iconGifPlay)
             
-            self.iconImageView.backgroundColor = SBUColorSet.ondark01
+            self.iconImageView.backgroundColor = theme.fileImageBackgroundColor
             self.iconImageView.layer.cornerRadius = self.iconImageView.frame.height / 2
-            
         case .image where message.type.hasPrefix("image/gif"):
-            let isThumbnailAnimated = self.imageView.image?.isAnimatedImage() == true
-            self.iconImageView.image = isThumbnailAnimated ? nil : SBUIconSetType.iconGif.image(to: SBUIconSetType.Metric.iconGifPlay)
+            self.iconImageView.image = SBUIconSetType.iconGif.image(
+                with: theme.fileImageIconColor,
+                to: SBUIconSetType.Metric.iconGifPlay
+            )
             
-            self.iconImageView.backgroundColor = SBUColorSet.ondark01
+            self.iconImageView.backgroundColor = theme.fileImageBackgroundColor
             self.iconImageView.layer.cornerRadius = self.iconImageView.frame.height / 2
-            
         default:
             self.iconImageView.backgroundColor = nil
             switch self.message.sendingStatus {
@@ -306,7 +313,6 @@ fileprivate class ImageContentView: BaseFileContentView {
     }
     
     func resizeImageView(by size: CGSize) {
-        SBULog.error("resize to : \(size)")
         let width = size.width
         let height = size.height
         self.widthConstraint.constant = min(width, SBUConstant.thumbnailSize.width)
@@ -370,19 +376,19 @@ fileprivate class CommonContentView: BaseFileContentView {
     }
     
     func setupAutolayout() {
-        self.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.heightAnchor.constraint(equalToConstant: 56),
-            self.widthAnchor.constraint(lessThanOrEqualToConstant: SBUConstant.thumbnailSize.width)
-        ])
-
+        self.sbu_constraint(height: 44)
         self.stackView.setConstraint(from: self, left: 12, right: 12, top: 8, bottom: 8)
-        self.fileImageView.setConstraint(width: 40, height: 40)
+        self.fileImageView.setConstraint(width: 28, height: 28)
     }
     
     override func setupStyles() {
         super.setupStyles()
         
+        switch position {
+        case .left: self.backgroundColor = theme.leftBackgroundColor
+        case .right: self.backgroundColor = theme.rightBackgroundColor
+        default: break
+        }
         self.fileImageView.backgroundColor = theme.fileIconBackgroundColor
     }
     
@@ -392,6 +398,14 @@ fileprivate class CommonContentView: BaseFileContentView {
     }
     
     override func configure(message: SBDFileMessage, position: MessagePosition) {
+        self.configure(message: message,
+                       position: position,
+                       highlight: false)
+    }
+    
+    func configure(message: SBDFileMessage,
+                   position: MessagePosition,
+                   highlight: Bool) {
         if self.message?.requestId != message.requestId ||
             self.message?.updatedAt != message.updatedAt {
             self.fileImageView.image = nil
@@ -406,18 +420,20 @@ fileprivate class CommonContentView: BaseFileContentView {
         case .audio:
             image = SBUIconSetType.iconFileAudio.image(
                 with: theme.fileIconColor,
-                to: SBUIconSetType.Metric.defaultIconSizeLarge
+                to: SBUIconSetType.Metric.defaultIconSize
             )
         case .image, .video, .pdf, .etc:
             image = SBUIconSetType.iconFileDocument.image(
                 with: theme.fileIconColor,
-                to: SBUIconSetType.Metric.defaultIconSizeLarge
+                to: SBUIconSetType.Metric.defaultIconSize
             )
         }
         
         self.fileImageView.image = image
         
-        let attributes: [NSAttributedString.Key : Any]
+        var attributes: [NSAttributedString.Key : Any]
+        var highlightTextColor: UIColor
+        
         switch position {
         case .left:
             attributes = [
@@ -426,7 +442,7 @@ fileprivate class CommonContentView: BaseFileContentView {
                 .underlineColor: theme.fileMessageLeftTextColor,
                 .foregroundColor: theme.fileMessageLeftTextColor
             ]
-            
+            highlightTextColor = theme.messageLeftHighlightTextColor
         case .right:
             attributes = [
                 .underlineStyle: NSUnderlineStyle.single.rawValue,
@@ -434,13 +450,22 @@ fileprivate class CommonContentView: BaseFileContentView {
                 .underlineColor: theme.fileMessageRightTextColor,
                 .foregroundColor: theme.fileMessageRightTextColor
             ]
+            highlightTextColor = theme.messageRightHighlightTextColor
         default:
             attributes = [:]
+            highlightTextColor = theme.messageRightHighlightTextColor
+        }
+        
+        if highlight {
+            attributes[.backgroundColor] = SBUColorSet.highlight
+            attributes[.foregroundColor] = highlightTextColor
         }
         
         let attributedText = NSAttributedString(string: self.message.name, attributes: attributes)
         self.fileNameLabel.attributedText = attributedText
         self.fileNameLabel.sizeToFit()
+        
+        self.setupStyles()
         
         self.layoutIfNeeded()
     }

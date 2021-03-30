@@ -60,15 +60,8 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
             }
         }
         
-        self.mainContainerView.addGestureRecognizer(UILongPressGestureRecognizer(
-            target: self,
-            action: #selector(self.onLongPressContentView(sender:)))
-        )
-
-        self.messageTextView.addGestureRecognizer(UITapGestureRecognizer(
-            target: self,
-            action: #selector(self.onTapContentView(sender:))
-        ))
+        self.messageTextView.addGestureRecognizer(self.contentLongPressRecognizer)
+        self.messageTextView.addGestureRecognizer(self.contentTapRecognizer)
 
         self.webView.addGestureRecognizer(UITapGestureRecognizer(
             target: self,
@@ -100,7 +93,7 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
     
     
     // MARK: - Common
-    public func configure(_ message: SBDUserMessage,
+    open func configure(_ message: SBDUserMessage,
                           hideDateView: Bool,
                           groupPosition: MessageGroupPosition,
                           receiptState: SBUMessageReceiptState?) {
@@ -113,7 +106,7 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
         )
     }
     
-    public func configure(_ message: SBDBaseMessage,
+    open func configure(_ message: SBDBaseMessage,
                           hideDateView: Bool,
                           receiptState: SBUMessageReceiptState?,
                           groupPosition: MessageGroupPosition,
@@ -152,14 +145,18 @@ open class SBUUserMessageCell: SBUContentBaseMessageCell {
     }
     
     /// Adds highlight attribute to the message
-    func configure(hightlightInfo: SBUHighlightMessageInfo) {
+    open func configure(highlightInfo: SBUHighlightMessageInfo?) {
+        // Only apply highlight for the given message, that's not edited (updatedAt didn't change)
+        guard self.message.messageId == highlightInfo?.messageId,
+              self.message.updatedAt == highlightInfo?.updatedAt else { return }
+        
         guard let messageTextView = messageTextView as? SBUUserMessageTextView else { return }
         
         messageTextView.configure(
             model: SBUUserMessageCellModel(
                 message: message,
                 position: position,
-                highlightInfo: hightlightInfo
+                highlight: true
             )
         )
     }

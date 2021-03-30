@@ -11,7 +11,7 @@ import Photos
 import MobileCoreServices
 
 @objcMembers
-open class SBUChannelSettingsViewController: SBUBaseViewController, UINavigationControllerDelegate {
+open class SBUChannelSettingsViewController: SBUBaseViewController {
     
     // MARK: - UI properties (Public)
     public lazy var userInfoView: UIView? = _userInfoView
@@ -239,7 +239,6 @@ open class SBUChannelSettingsViewController: SBUBaseViewController, UINavigation
 
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setNeedsStatusBarAppearanceUpdate()
         
         self.updateStyles()
     }
@@ -562,7 +561,8 @@ extension SBUChannelSettingsViewController: UITableViewDataSource, UITableViewDe
         }
         
         let rowValue = indexPath.row + (self.isOperator ? 0 : 1)
-        let type = ChannelSettingItemType(rawValue: rowValue)
+        guard let type = ChannelSettingItemType.from(row: rowValue) else { return }
+        
         switch type {
         case .moderations:
             self.showModerationList()
@@ -586,16 +586,16 @@ extension SBUChannelSettingsViewController: UITableViewDataSource, UITableViewDe
             ) as? SBUChannelSettingCell else { fatalError() }
         
         cell.selectionStyle = .none
-
+        
         let rowValue = indexPath.row + (self.isOperator ? 0 : 1)
-        if let type = ChannelSettingItemType(rawValue: rowValue) {
-            cell.configure(type: type, channel: self.channel)
-            
-            if type == .notifications {
-                cell.switchAction = { [weak self] isOn in
-                    guard let self = self else { return }
-                    self.changeNotification(isOn: isOn)
-                }
+        guard let type = ChannelSettingItemType.from(row: rowValue) else { return cell }
+        
+        cell.configure(type: type, channel: self.channel)
+        
+        if type == .notifications {
+            cell.switchAction = { [weak self] isOn in
+                guard let self = self else { return }
+                self.changeNotification(isOn: isOn)
             }
         }
 

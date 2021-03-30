@@ -14,7 +14,7 @@ import SafariServices
 import SendBirdSDK
 
 @objcMembers
-open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationControllerDelegate {
+open class SBUChannelViewController: SBUBaseChannelViewController {
 
     // MARK: - UI properties (Public)
     public var channelName: String? = nil
@@ -41,7 +41,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     }
     public var rightBarButton: UIBarButtonItem? = nil {
         didSet {
-            self.navigationItem.rightBarButtonItem = self.rightBarButton
+            self.navigationItem.rightBarButtonItem = self.useRightBarButtonItem ? self.rightBarButton : nil
         }
     }
     public lazy var channelStateBanner: UIView? = _channelStateBanner
@@ -147,7 +147,9 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     public private(set) var channel: SBDGroupChannel? {
         didSet {
             // set from channelUrl
-            self.initViewModel(startingPoint: self.startingPoint)
+            if channel != nil {
+                self.initViewModel(startingPoint: self.startingPoint)
+            }
         }
     }
     public private(set) var channelUrl: String?
@@ -485,27 +487,11 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
             emptyView.setupStyles()
         }
         
-        self.setupScrollBottomViewStyle()
+        if let scrollBottomView = self.scrollBottomView {
+            self.setupScrollBottomViewStyle(scrollBottomView: scrollBottomView)
+        }
         
         self.reloadTableView()
-    }
-    
-    private func setupScrollBottomViewStyle() {
-        guard let scrollBottomView = self.scrollBottomView else { return }
-        let theme = SBUTheme.componentTheme
-        
-        view.layer.shadowColor = theme.shadowColor.withAlphaComponent(0.5).cgColor
-        
-        guard let scrollBottomButton = scrollBottomView.subviews.first as? UIButton else { return }
-        
-        scrollBottomButton.layer.cornerRadius = scrollBottomButton.frame.height / 2
-        scrollBottomButton.clipsToBounds = true
-        
-        scrollBottomButton.setImage(SBUIconSetType.iconChevronDown.image(with: theme.scrollBottomButtonIconColor,
-                                                                         to: SBUIconSetType.Metric.iconChevronDown),
-                                    for: .normal)
-        scrollBottomButton.backgroundColor = theme.scrollBottomButtonBackground
-        scrollBottomButton.setBackgroundImage(UIImage.from(color: theme.scrollBottomButtonHighlighted), for: .highlighted)
     }
     
     open override func viewDidLayoutSubviews() {
@@ -619,13 +605,19 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
                 }
             }
             
+            let firstVisibleIndexPath = self.tableView.indexPathsForVisibleRows?.first ?? IndexPath(row: 0, section: 0)
+            let firstRect = self.tableView.rectForRow(at: firstVisibleIndexPath)
+            SBULog.error("firstVisibleIndexPath : \(firstVisibleIndexPath) firstrectg : \(firstRect), offset : \(self.tableView.contentOffset)")
+            
             self.clearMessageList()
             self.upsertMessagesInList(messages: messages, needReload: true)
             
+            self.tableView.layoutIfNeeded()
+
             if let startingPoint = self.channelViewModel?.startingPoint,
                let index = self.fullMessageList.firstIndex(where: { $0.createdAt <= startingPoint }) {
                 SBULog.info("Scrolling to : \(index)")
-                self.scrollTableViewTo(row: index)
+                self.scrollTableViewTo(row: index, at: .middle)
             } else {
                 self.scrollTableViewTo(row: 0)
             }
@@ -1018,7 +1010,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     /// - Parameters:
     ///   - channelUrl: channel url
     ///   - messageListParams: (Optional) The parameter to be used when getting channel information. 
-    public func loadChannel(channelUrl: String?, messageListParams: SBDMessageListParams? = nil) {
+    public override func loadChannel(channelUrl: String?, messageListParams: SBDMessageListParams? = nil) {
         guard let channelUrl = channelUrl else { return }
         self.shouldShowLoadingIndicator()
         
@@ -1032,7 +1024,12 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
         }
         
         SBUMain.connectionCheck { [weak self] user, error in
-            if let error = error { self?.didReceiveError(error.localizedDescription) }
+            guard let self = self else { return }
+            if let error = error {
+                self.didReceiveError(error.localizedDescription)
+                // do not proceed to getChannel()
+                return
+            }
 
             SBULog.info("[Request] Load channel: \(String(channelUrl))")
             SBDGroupChannel.getWithUrl(channelUrl) { [weak self] channel, error in
@@ -1284,20 +1281,25 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     // MARK: - Channel related
     
     private func refreshChannel(applyChangelog: Bool = false) {
-        self.channel?.refresh { [weak self] error in
-            guard let self = self else { return }
-            if let error = error {
-                self.didReceiveError(error.localizedDescription)
-                SBULog.error("[Failed] Refresh channel request : \(error.localizedDescription)")
+        if let channel = channel {
+            channel.refresh { [weak self] error in
+                guard let self = self else { return }
+                if let error = error {
+                    self.didReceiveError(error.localizedDescription)
+                    SBULog.error("[Failed] Refresh channel request : \(error.localizedDescription)")
+                }
+                 
+                guard self.canProceed(with: self.channel, error: error) else { return }
+                
+                SBULog.info("[Succeed] Refresh channel request")
+                if applyChangelog {
+                    self.channelViewModel?.loadMessageChangeLogs()
+                    self.updateMessageInputModeState()
+                }
             }
-             
-            guard self.canProceed(with: self.channel, error: error) else { return }
-            
-            SBULog.info("[Succeed] Refresh channel request")
-            if applyChangelog {
-                self.channelViewModel?.loadMessageChangeLogs()
-                self.updateMessageInputModeState()
-            }
+        } else if let channelUrl = self.channelUrl {
+            // channel hasn't been loaded before.
+            self.loadChannel(channelUrl: channelUrl)
         }
     }
     
@@ -1854,7 +1856,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     /// - Parameters:
     ///   - loadingState: Set to true when the list is loading.
     ///   - showIndicator: If true, the loading indicator is started, and if false, the indicator is stopped.
-    public func setLoading(_ loadingState: Bool, _ showIndicator: Bool) {
+    public override func setLoading(_ loadingState: Bool, _ showIndicator: Bool) {
         if let channelViewModel = self.channelViewModel {
             channelViewModel.setLoading(loadingState, showIndicator)
         } else {
@@ -1940,13 +1942,13 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
     }
     
     /// To keep track of which scrolls tableview.
-    private func scrollTableViewTo(row: Int, animated: Bool = false) {
+    private func scrollTableViewTo(row: Int, at position: UITableView.ScrollPosition = .top, animated: Bool = false) {
         if self.fullMessageList.isEmpty {
             guard self.tableView.contentOffset != .zero else { return }
             
             self.tableView.setContentOffset(.zero, animated: false)
         } else {
-            self.tableView.scrollToRow(at: IndexPath(row: row, section: 0), at: .top, animated: animated)
+            self.tableView.scrollToRow(at: IndexPath(row: row, section: 0), at: position, animated: animated)
         }
     }
     
@@ -2002,10 +2004,6 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
         self.setScrollBottomView(hidden: isScrollNearBottom())
     }
     
-    private func isScrollNearBottom() -> Bool {
-        return self.tableView.contentOffset.y < 10
-    }
-    
     // MARK: - Floating Buttons
     
     /// This shows new message view based on `hasNext`
@@ -2023,11 +2021,6 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
         let hide = shouldHide && !hasNext
         
         guard hide != self.scrollBottomView?.isHidden else { return }
-        
-        if !hide {
-            self.setupScrollBottomViewStyle()
-        }
-        
         self.scrollBottomView?.isHidden = hide
     }
     
@@ -2174,7 +2167,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
 
             case .save:
                 guard let fileMessage = message as? SBDFileMessage else { return }
-                SBUDownloadManager.saveFile(with: fileMessage, parent: self)
+                SBUDownloadManager.save(fileMessage: fileMessage, parent: self)
             }
         }
 
@@ -2264,7 +2257,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
                     guard let self = self else { return }
                     guard let fileMessage = message as? SBDFileMessage else { return }
                     
-                    SBUDownloadManager.saveFile(with: fileMessage, parent: self)
+                    SBUDownloadManager.save(fileMessage: fileMessage, parent: self)
                 }
             }
         }
@@ -2338,9 +2331,8 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
                 groupPosition: self.getMessageGroupingPosition(currentIndex: indexPath.row),
                 receiptState: receiptState
             )
-            if let highlightInfo = self.highlightInfo {
-                userMessageCell.configure(hightlightInfo: highlightInfo)
-            }
+            userMessageCell.configure(highlightInfo: self.highlightInfo)
+            
             self.setUserMessageCellGestures(
                 userMessageCell,
                 userMessage: userMessage,
@@ -2355,6 +2347,7 @@ open class SBUChannelViewController: SBUBaseChannelViewController, UINavigationC
                 groupPosition: self.getMessageGroupingPosition(currentIndex: indexPath.row),
                 receiptState: receiptState
             )
+            fileMessageCell.configure(highlightInfo: self.highlightInfo)
             
             self.setFileMessageCellGestures(
                 fileMessageCell,
@@ -2763,22 +2756,7 @@ extension SBUChannelViewController: SBDChannelDelegate, SBDConnectionDelegate {
     open func didSucceedReconnection() {
         SBULog.info("Did succeed reconnection")
         
-        guard let channel = self.channel else { return }
-        
         SBULog.info("[Request] Refresh channel")
-        channel.refresh { [weak self] error in
-            guard let self = self else { return }
-            if let error = error {
-                self.didReceiveError(error.localizedDescription)
-                SBULog.error("[Failed] Refresh channel request : \(error.localizedDescription)")
-                return
-            }
-            
-            SBULog.info("[Succeed] Refresh channel request")
-            self.channelViewModel?.loadMessageChangeLogs()
-            
-            self.updateMessageInputModeState()
-        }
         self.refreshChannel(applyChangelog: true)
     }
 }

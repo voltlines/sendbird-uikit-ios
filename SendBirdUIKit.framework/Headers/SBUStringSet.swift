@@ -125,7 +125,7 @@ public class SBUStringSet: NSObject {
     }
     public static var ChannelSettings_Leave = "Leave channel"
     public static var ChannelSettings_Delete = "Delete channel"
-    public static var ChannelSettings_Search = "Search in Channel"
+    public static var ChannelSettings_Search = "Search in channel"
     
     public static var ChannelSettings_Moderations = "Moderations"
     public static var ChannelSettings_Operators = "Operators"
