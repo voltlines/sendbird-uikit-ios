@@ -11,20 +11,48 @@ import SendBirdSDK
 
 @objcMembers
 public class SBUMain: NSObject {
-    
     // MARK: - Initialize
     /// This function is used to initializes SDK with applicationId.
     /// - Parameter applicationId: Application ID
+    @available(*, deprecated, message: "deprecated in [NEXT_VERSION]", renamed: "initialize(applicationId:migrationStartHandler:completionHandler:)")
     public static func initialize(applicationId: String) {
+        SBUMain.initialize(applicationId: applicationId, migrationStartHandler: nil, completionHandler: nil)
+    }
+    
+    /// This function is used to initializes SDK with applicationId.
+    ///
+    /// When the completion handler is called, please proceed with the next operation.
+    ///
+    /// - Parameters:
+    ///   - applicationId: Application ID
+    ///   - migrationStartHandler: Migration start handler
+    ///   - completionHandler: Completion handler
+    ///
+    /// - Since: [NEXT_VERSION]
+    public static func initialize(applicationId: String,
+                                  migrationStartHandler: (() -> Void)?,
+                                  completionHandler: ((_ error: SBDError?) -> ())?) {
         SBUGlobals.ApplicationId = applicationId
         
         if let version = SBUMain.shortVersionString() {
             SBDMain.addExtension(SBUConstant.sbdExtensionKeyUIKit, version: version)
         }
-        
-        SBDMain.initWithApplicationId(applicationId)
-        
-        SBULog.info("[Init] UIKit initialized with id: \(applicationId)")
+    
+        SBDMain.initWithApplicationId(
+            applicationId,
+            useCaching: true
+        ) {
+            SBULog.info("[Init] Migration start")
+            migrationStartHandler?()
+        } completionHandler: { error in
+            if let _ = error {
+                SBULog.info("[Init] Failed initialized with id: \(applicationId)")
+            } else {
+                SBULog.info("[Init] Finish initialized with id: \(applicationId)")
+            }
+            
+            completionHandler?(error)
+        }
     }
     
     
@@ -34,6 +62,46 @@ public class SBUMain: NSObject {
     /// Before invoking this function, `CurrentUser` object of `SBUGlobals` claas must be set.
     /// - Parameter completionHandler: The handler block to execute.
     public static func connect(
+        completionHandler: @escaping (_ user: SBDUser?, _ error: SBDError?) -> Void
+    ) {
+        SBUMain.connectIfNeeded(completionHandler: completionHandler)
+    }
+    
+    @available(*, deprecated, message: "deprecated in 2.2.0", renamed: "connectIfNeeded(completionHandler:)")
+    public static func connectionCheck(
+        completionHandler: @escaping (_ user: SBDUser?, _ error: SBDError?) -> Void
+    ) {
+        self.connectIfNeeded(completionHandler: completionHandler)
+    }
+    
+    
+    /// This function is used to check the connection state.
+    ///  if connected, returns the SBDUser object, otherwise, call the connect function from the inside.
+    ///  If local caching is enabled, the currentUser object is delivered and the connect operation is performed.
+    ///
+    /// - Parameter completionHandler: The handler block to execute.
+    public static func connectIfNeeded(
+        completionHandler: @escaping (_ user: SBDUser?, _ error: SBDError?) -> Void
+    ) {
+        SBULog.info("[Check] Connection status : \(SBDMain.getConnectState().rawValue)")
+        
+        if SBDMain.getConnectState() == .open {
+            completionHandler(SBDMain.getCurrentUser(), nil)
+        } else {
+            SBULog.info("currentUser: \(String(describing: SBDMain.getCurrentUser()?.userId))")
+            if SBDMain.isUsingLocalCaching(),
+               let _ = SBDMain.getCurrentUser() {
+                completionHandler(SBDMain.getCurrentUser(), nil)
+                SBUMain.connectAndUpdates { _, _ in }
+            } else {
+                SBUMain.connectAndUpdates(completionHandler: completionHandler)
+            }
+        }
+    }
+    
+    /// This function is used to check connection state and connect to the SendBird server.
+    /// - Parameter completionHandler: The handler block to execute.
+    static func connectAndUpdates(
         completionHandler: @escaping (_ user: SBDUser?, _ error: SBDError?) -> Void
     ) {
         SBULog.info("[Request] Connection to SendBird server")
@@ -48,6 +116,10 @@ public class SBUMain: NSObject {
         let nickname = currentUser.nickname?.trimmingCharacters(in: .whitespacesAndNewlines)
         
         SBDMain.connect(withUserId: userId, accessToken: SBUGlobals.AccessToken) { user, error in
+            defer {
+                SBUEmojiManager.loadAllEmojis { _, error in }
+            }
+            
             if let error = error {
                 SBULog.error("[Failed] Connection to SendBird server: \(error.localizedDescription)")
                 completionHandler(nil, error)
@@ -88,27 +160,8 @@ public class SBUMain: NSObject {
                 }
                 #endif
                 
-                SBUEmojiManager.loadAllEmojis { _, error in
-                    completionHandler(user, error)
-                }
-                
+                completionHandler(user, nil)
             }
-        }
-    }
-    
-    /// This function is used to check the connection state.
-    ///  if connected, returns the SBDUser object, otherwise, call the connect function from the inside.
-    /// - Parameter completionHandler: The handler block to execute.
-    public static func connectionCheck(
-        completionHandler: @escaping (_ user: SBDUser?, _ error: SBDError?) -> Void
-    ) {
-        SBULog.info("[Check] Connection status")
-        
-        if SBDMain.getConnectState() == .open {
-            completionHandler(SBDMain.getCurrentUser(), nil)
-        }
-        else {
-            SBUMain.connect(completionHandler: completionHandler)
         }
     }
     
@@ -253,7 +306,7 @@ public class SBUMain: NSObject {
     /// This function is used to unregister push token on the SendBird server.
     /// - Parameter completionHandler: The handler block to execute.
     public static func unregisterPushToken(completionHandler: @escaping (_ success: Bool) -> Void) {
-        SBUMain.connectionCheck { user, error in
+        SBUMain.connectIfNeeded { user, error in
         guard error == nil else { return }
             
             #if !targetEnvironment(simulator)
@@ -281,7 +334,7 @@ public class SBUMain: NSObject {
     /// This function is used to unregister all push token on the SendBird server.
     /// - Parameter completionHandler: The handler block to execute.
     public static func unregisterAllPushToken(completionHandler: @escaping (_ success: Bool) -> Void) {
-        SBUMain.connectionCheck { user, error in
+        SBUMain.connectIfNeeded { user, error in
         guard error == nil else { return }
             
             SBULog.info("[Request] Unregister all push token to SendBird server")
@@ -537,3 +590,4 @@ public class SBUMain: NSObject {
         SBULog.logType = type
     }
 }
+

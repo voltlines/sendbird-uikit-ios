@@ -292,22 +292,22 @@ extension UIImageView {
     @objc get
   }
   @objc public var channelListQuery: SendBirdSDK.SBDGroupChannelListQuery? {
-    get
+    @objc get
   }
   @objc public var isLoading: Swift.Bool {
-    get
+    @objc get
   }
   @objc public var lastUpdatedTimestamp: Swift.Int64 {
-    get
+    @objc get
   }
   @objc public var lastUpdatedToken: Swift.String? {
-    get
+    @objc get
   }
   @objc public var limit: Swift.UInt {
-    get
+    @objc get
   }
   @objc public var includeEmptyChannel: Swift.Bool {
-    get
+    @objc get
   }
   @available(*, unavailable, renamed: "SBUChannelListViewController()")
   @objc required dynamic public init?(coder: Foundation.NSCoder)
@@ -326,8 +326,8 @@ extension UIImageView {
   @objc deinit
   @objc public func changePushTriggerOption(option: SendBirdSDK.SBDGroupChannelPushTriggerOption, channel: SendBirdSDK.SBDGroupChannel, completionHandler: ((Swift.Bool) -> Swift.Void)? = nil)
   @objc public func leaveChannel(_ channel: SendBirdSDK.SBDGroupChannel, completionHandler: ((Swift.Bool) -> Swift.Void)? = nil)
+  @objc public func resetChannelList()
   @objc public func loadNextChannelList(reset: Swift.Bool)
-  @objc public func loadChannelChangeLogs(hasMore: Swift.Bool, token: Swift.String?)
   @objc public func sortChannelList(needReload: Swift.Bool)
   @objc public func updateChannels(_ channels: [SendBirdSDK.SBDGroupChannel]?, needReload: Swift.Bool)
   @objc public func upsertChannels(_ channels: [SendBirdSDK.SBDGroupChannel]?, needReload: Swift.Bool)
@@ -354,7 +354,7 @@ extension SBUChannelListViewController : UIKit.UITableViewDataSource, UIKit.UITa
 extension SBUChannelListViewController : SendBirdUIKit.SBUEmptyViewDelegate {
   @objc dynamic open func didSelectRetry()
 }
-extension SBUChannelListViewController : SendBirdSDK.SBDChannelDelegate, SendBirdSDK.SBDConnectionDelegate {
+extension SBUChannelListViewController : SendBirdSDK.SBDChannelDelegate {
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDGroupChannel, userDidJoin user: SendBirdSDK.SBDUser)
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDGroupChannel, userDidLeave user: SendBirdSDK.SBDUser)
   @objc dynamic open func channelWasChanged(_ sender: SendBirdSDK.SBDBaseChannel)
@@ -362,6 +362,8 @@ extension SBUChannelListViewController : SendBirdSDK.SBDChannelDelegate, SendBir
   @objc dynamic open func channelWasFrozen(_ sender: SendBirdSDK.SBDBaseChannel)
   @objc dynamic open func channelWasUnfrozen(_ sender: SendBirdSDK.SBDBaseChannel)
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, userWasBanned user: SendBirdSDK.SBDUser)
+}
+extension SBUChannelListViewController : SendBirdSDK.SBDConnectionDelegate {
   @objc dynamic open func didSucceedReconnection()
 }
 extension SBUChannelListViewController : SendBirdUIKit.SBUCreateChannelTypeSelectorDelegate {
@@ -1073,7 +1075,7 @@ extension SBUBaseViewController : UIKit.UINavigationControllerDelegate {
   @objc open func generateCellIdentifier(by message: SendBirdSDK.SBDBaseMessage) -> Swift.String
   @objc override dynamic open func messageInputViewDidEndTyping()
 }
-extension SBUChannelViewController : SendBirdSDK.SBDChannelDelegate, SendBirdSDK.SBDConnectionDelegate {
+extension SBUChannelViewController : SendBirdSDK.SBDChannelDelegate {
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, didReceive message: SendBirdSDK.SBDBaseMessage)
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, didUpdate message: SendBirdSDK.SBDBaseMessage)
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, messageWasDeleted messageId: Swift.Int64)
@@ -1088,6 +1090,8 @@ extension SBUChannelViewController : SendBirdSDK.SBDChannelDelegate, SendBirdSDK
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, userWasUnmuted user: SendBirdSDK.SBDUser)
   @objc dynamic open func channelDidUpdateOperators(_ sender: SendBirdSDK.SBDBaseChannel)
   @objc dynamic open func channel(_ sender: SendBirdSDK.SBDBaseChannel, userWasBanned user: SendBirdSDK.SBDUser)
+}
+extension SBUChannelViewController : SendBirdSDK.SBDConnectionDelegate {
   @objc dynamic open func didSucceedReconnection()
 }
 extension SBUChannelViewController : UIKit.UIDocumentInteractionControllerDelegate {
@@ -2139,9 +2143,13 @@ public class MessageStateView : SendBirdUIKit.SBUMessageStateView {
   @objc deinit
 }
 @objc @_inheritsConvenienceInitializers @objcMembers public class SBUMain : ObjectiveC.NSObject {
-  @objc public static func initialize(applicationId: Swift.String)
+  @objc @available(*, deprecated, renamed: "initialize(applicationId:migrationStartHandler:completionHandler:)", message: "deprecated in [NEXT_VERSION]")
+  public static func initialize(applicationId: Swift.String)
+  @objc public static func initialize(applicationId: Swift.String, migrationStartHandler: (() -> Swift.Void)?, completionHandler: ((SendBirdSDK.SBDError?) -> ())?)
   @objc public static func connect(completionHandler: @escaping (SendBirdSDK.SBDUser?, SendBirdSDK.SBDError?) -> Swift.Void)
-  @objc public static func connectionCheck(completionHandler: @escaping (SendBirdSDK.SBDUser?, SendBirdSDK.SBDError?) -> Swift.Void)
+  @objc @available(*, deprecated, renamed: "connectIfNeeded(completionHandler:)", message: "deprecated in 2.2.0")
+  public static func connectionCheck(completionHandler: @escaping (SendBirdSDK.SBDUser?, SendBirdSDK.SBDError?) -> Swift.Void)
+  @objc public static func connectIfNeeded(completionHandler: @escaping (SendBirdSDK.SBDUser?, SendBirdSDK.SBDError?) -> Swift.Void)
   @objc public static func disconnect(completionHandler: (() -> Swift.Void)?)
   @objc public static func updateUserInfo(nickname: Swift.String?, profileUrl: Swift.String?, completionHandler: ((SendBirdSDK.SBDError?) -> Swift.Void)?)
   @objc public static func updateUserInfo(nickname: Swift.String?, profileImage: Foundation.Data?, completionHandler: ((SendBirdSDK.SBDError?) -> Swift.Void)?)

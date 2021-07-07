@@ -316,9 +316,7 @@ open class SBUInviteUserViewController: SBUBaseViewController {
         
         inviteUserListViewModel.channelChangedObservable.observe { [weak self] channel, type in
             switch type {
-            case .invite:
-                self?.popToChannel()
-            case .promote:
+            case .invite, .promote:
                 self?.popToChannel()
             default:
                 break

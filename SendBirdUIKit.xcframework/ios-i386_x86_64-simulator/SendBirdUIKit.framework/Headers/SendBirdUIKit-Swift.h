@@ -735,15 +735,15 @@ SWIFT_CLASS("_TtC13SendBirdUIKit35SBUBaseChannelSettingViewController")
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 @end
 
+
+@interface SBUBaseChannelSettingViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUActionSheetDelegate>
+- (void)didSelectActionSheetItemWithIndex:(NSInteger)index identifier:(NSInteger)identifier;
+@end
+
 @class UIImagePickerController;
 
 @interface SBUBaseChannelSettingViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIImagePickerControllerDelegate>
 - (void)imagePickerController:(UIImagePickerController * _Nonnull)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> * _Nonnull)info;
-@end
-
-
-@interface SBUBaseChannelSettingViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUActionSheetDelegate>
-- (void)didSelectActionSheetItemWithIndex:(NSInteger)index identifier:(NSInteger)identifier;
 @end
 
 
@@ -971,16 +971,16 @@ SWIFT_CLASS("_TtC13SendBirdUIKit28SBUBaseChannelViewController")
 - (void)setLoading:(BOOL)loadingState :(BOOL)showIndicator;
 @end
 
-@class UIGestureRecognizer;
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIGestureRecognizerDelegate>
-- (BOOL)gestureRecognizer:(UIGestureRecognizer * _Nonnull)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer * _Nonnull)otherGestureRecognizer SWIFT_WARN_UNUSED_RESULT;
-@end
-
 @class SBDFileMessage;
 
 @interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit))
 - (void)didSelectDeleteImageWithMessage:(SBDFileMessage * _Nonnull)message;
+@end
+
+@class UIGestureRecognizer;
+
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIGestureRecognizerDelegate>
+- (BOOL)gestureRecognizer:(UIGestureRecognizer * _Nonnull)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer * _Nonnull)otherGestureRecognizer SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -1001,6 +1001,25 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit20SBUEmptyViewDelegate_")
 @end
 
 
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit))
+- (BOOL)shouldShowLoadingIndicator;
+- (void)shouldDismissLoadingIndicator;
+@end
+
+
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIImagePickerControllerDelegate>
+- (void)imagePickerController:(UIImagePickerController * _Nonnull)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> * _Nonnull)info;
+- (void)imagePickerControllerDidCancel:(UIImagePickerController * _Nonnull)picker;
+@end
+
+@class UIDocumentPickerViewController;
+
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIDocumentPickerDelegate>
+- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentsAtURLs:(NSArray<NSURL *> * _Nonnull)urls SWIFT_AVAILABILITY(ios,introduced=11.0);
+- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentAtURL:(NSURL * _Nonnull)url;
+@end
+
+
 SWIFT_PROTOCOL("_TtP13SendBirdUIKit26SBUUserProfileViewDelegate_")
 @protocol SBUUserProfileViewDelegate
 /// This delegate function notifies the implemented class when closing the selector.
@@ -1015,25 +1034,6 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit26SBUUserProfileViewDelegate_")
 @interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUUserProfileViewDelegate>
 - (void)didSelectMessageWithUserId:(NSString * _Nullable)userId;
 - (void)didSelectClose;
-@end
-
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit))
-- (BOOL)shouldShowLoadingIndicator;
-- (void)shouldDismissLoadingIndicator;
-@end
-
-@class UIDocumentPickerViewController;
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIDocumentPickerDelegate>
-- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentsAtURLs:(NSArray<NSURL *> * _Nonnull)urls SWIFT_AVAILABILITY(ios,introduced=11.0);
-- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentAtURL:(NSURL * _Nonnull)url;
-@end
-
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIImagePickerControllerDelegate>
-- (void)imagePickerController:(UIImagePickerController * _Nonnull)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> * _Nonnull)info;
-- (void)imagePickerControllerDidCancel:(UIImagePickerController * _Nonnull)picker;
 @end
 
 
@@ -1242,20 +1242,16 @@ SWIFT_CLASS("_TtC13SendBirdUIKit28SBUChannelListViewController")
 /// \param completionHandler Completion handler
 ///
 - (void)leaveChannel:(SBDGroupChannel * _Nonnull)channel completionHandler:(void (^ _Nullable)(BOOL))completionHandler;
+/// This function resets the channel list.
+/// since:
+/// x.x.x
+- (void)resetChannelList;
 /// This function loads the channel list. If the reset value is true, the channel list will reset.
 /// since:
 /// 1.2.5
 /// \param reset To reset the channel list
 ///
 - (void)loadNextChannelListWithReset:(BOOL)reset;
-/// This function loads the channel changelogs.
-/// since:
-/// 1.2.5
-/// \param hasMore If set to <code>true</code>, the changelogs will no longer be scanned.
-///
-/// \param token Use when you have the last updated token value.
-///
-- (void)loadChannelChangeLogsWithHasMore:(BOOL)hasMore token:(NSString * _Nullable)token;
 /// This function sorts the channel lists.
 /// since:
 /// 1.2.5
@@ -1338,6 +1334,11 @@ SWIFT_CLASS("_TtC13SendBirdUIKit28SBUChannelListViewController")
 @end
 
 
+@interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDConnectionDelegate>
+- (void)didSucceedReconnection;
+@end
+
+
 @interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUEmptyViewDelegate>
 - (void)didSelectRetry;
 @end
@@ -1383,7 +1384,7 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit36SBUCreateChannelTypeSelectorDelegate_")
 @end
 
 
-@interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate, SBDConnectionDelegate>
+@interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate>
 - (void)channel:(SBDGroupChannel * _Nonnull)sender userDidJoin:(SBDUser * _Nonnull)user;
 - (void)channel:(SBDGroupChannel * _Nonnull)sender userDidLeave:(SBDUser * _Nonnull)user;
 - (void)channelWasChanged:(SBDBaseChannel * _Nonnull)sender;
@@ -1391,7 +1392,6 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit36SBUCreateChannelTypeSelectorDelegate_")
 - (void)channelWasFrozen:(SBDBaseChannel * _Nonnull)sender;
 - (void)channelWasUnfrozen:(SBDBaseChannel * _Nonnull)sender;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender userWasBanned:(SBDUser * _Nonnull)user;
-- (void)didSucceedReconnection;
 @end
 
 
@@ -1792,9 +1792,14 @@ SWIFT_CLASS("_TtC13SendBirdUIKit24SBUChannelViewController")
 - (UIViewController * _Nonnull)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController * _Nonnull)controller SWIFT_WARN_UNUSED_RESULT;
 @end
 
+
+@interface SBUChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDConnectionDelegate>
+- (void)didSucceedReconnection;
+@end
+
 @class SBDReactionEvent;
 
-@interface SBUChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate, SBDConnectionDelegate>
+@interface SBUChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate>
 - (void)channel:(SBDBaseChannel * _Nonnull)sender didReceiveMessage:(SBDBaseMessage * _Nonnull)message;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender didUpdateMessage:(SBDBaseMessage * _Nonnull)message;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender messageWasDeleted:(int64_t)messageId;
@@ -1809,7 +1814,6 @@ SWIFT_CLASS("_TtC13SendBirdUIKit24SBUChannelViewController")
 - (void)channel:(SBDBaseChannel * _Nonnull)sender userWasUnmuted:(SBDUser * _Nonnull)user;
 - (void)channelDidUpdateOperators:(SBDBaseChannel * _Nonnull)sender;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender userWasBanned:(SBDUser * _Nonnull)user;
-- (void)didSucceedReconnection;
 @end
 
 
@@ -2806,17 +2810,30 @@ SWIFT_CLASS("_TtC13SendBirdUIKit7SBUMain")
 /// This function is used to initializes SDK with applicationId.
 /// \param applicationId Application ID
 ///
-+ (void)initializeWithApplicationId:(NSString * _Nonnull)applicationId;
++ (void)initializeWithApplicationId:(NSString * _Nonnull)applicationId SWIFT_DEPRECATED_MSG("deprecated in [NEXT_VERSION]", "initializeWithApplicationId:migrationStartHandler:completionHandler:");
+/// This function is used to initializes SDK with applicationId.
+/// When the completion handler is called, please proceed with the next operation.
+/// since:
+/// [NEXT_VERSION]
+/// \param applicationId Application ID
+///
+/// \param migrationStartHandler Migration start handler
+///
+/// \param completionHandler Completion handler
+///
++ (void)initializeWithApplicationId:(NSString * _Nonnull)applicationId migrationStartHandler:(void (^ _Nullable)(void))migrationStartHandler completionHandler:(void (^ _Nullable)(SBDError * _Nullable))completionHandler;
 /// This function is used to connect to the SendBird server.
 /// Before invoking this function, <code>CurrentUser</code> object of <code>SBUGlobals</code> claas must be set.
 /// \param completionHandler The handler block to execute.
 ///
 + (void)connectWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler;
++ (void)connectionCheckWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler SWIFT_DEPRECATED_MSG("deprecated in 2.2.0", "connectIfNeededWithCompletionHandler:");
 /// This function is used to check the connection state.
 /// if connected, returns the SBDUser object, otherwise, call the connect function from the inside.
+/// If local caching is enabled, the currentUser object is delivered and the connect operation is performed.
 /// \param completionHandler The handler block to execute.
 ///
-+ (void)connectionCheckWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler;
++ (void)connectIfNeededWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler;
 /// This function is used to disconnect
 /// \param completionHandler The handler block to execute.
 ///
@@ -3108,15 +3125,15 @@ SWIFT_CLASS("_TtC13SendBirdUIKit27SBUMemberListViewController")
 @end
 
 
-@interface SBUMemberListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUUserProfileViewDelegate>
-- (void)didSelectMessageWithUserId:(NSString * _Nullable)userId;
-- (void)didSelectClose;
-@end
-
-
 @interface SBUMemberListViewController (SWIFT_EXTENSION(SendBirdUIKit))
 - (BOOL)shouldShowLoadingIndicator;
 - (void)shouldDismissLoadingIndicator;
+@end
+
+
+@interface SBUMemberListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUUserProfileViewDelegate>
+- (void)didSelectMessageWithUserId:(NSString * _Nullable)userId;
+- (void)didSelectClose;
 @end
 
 
@@ -5540,15 +5557,15 @@ SWIFT_CLASS("_TtC13SendBirdUIKit35SBUBaseChannelSettingViewController")
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 @end
 
+
+@interface SBUBaseChannelSettingViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUActionSheetDelegate>
+- (void)didSelectActionSheetItemWithIndex:(NSInteger)index identifier:(NSInteger)identifier;
+@end
+
 @class UIImagePickerController;
 
 @interface SBUBaseChannelSettingViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIImagePickerControllerDelegate>
 - (void)imagePickerController:(UIImagePickerController * _Nonnull)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> * _Nonnull)info;
-@end
-
-
-@interface SBUBaseChannelSettingViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUActionSheetDelegate>
-- (void)didSelectActionSheetItemWithIndex:(NSInteger)index identifier:(NSInteger)identifier;
 @end
 
 
@@ -5776,16 +5793,16 @@ SWIFT_CLASS("_TtC13SendBirdUIKit28SBUBaseChannelViewController")
 - (void)setLoading:(BOOL)loadingState :(BOOL)showIndicator;
 @end
 
-@class UIGestureRecognizer;
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIGestureRecognizerDelegate>
-- (BOOL)gestureRecognizer:(UIGestureRecognizer * _Nonnull)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer * _Nonnull)otherGestureRecognizer SWIFT_WARN_UNUSED_RESULT;
-@end
-
 @class SBDFileMessage;
 
 @interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit))
 - (void)didSelectDeleteImageWithMessage:(SBDFileMessage * _Nonnull)message;
+@end
+
+@class UIGestureRecognizer;
+
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIGestureRecognizerDelegate>
+- (BOOL)gestureRecognizer:(UIGestureRecognizer * _Nonnull)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer * _Nonnull)otherGestureRecognizer SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -5806,6 +5823,25 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit20SBUEmptyViewDelegate_")
 @end
 
 
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit))
+- (BOOL)shouldShowLoadingIndicator;
+- (void)shouldDismissLoadingIndicator;
+@end
+
+
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIImagePickerControllerDelegate>
+- (void)imagePickerController:(UIImagePickerController * _Nonnull)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> * _Nonnull)info;
+- (void)imagePickerControllerDidCancel:(UIImagePickerController * _Nonnull)picker;
+@end
+
+@class UIDocumentPickerViewController;
+
+@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIDocumentPickerDelegate>
+- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentsAtURLs:(NSArray<NSURL *> * _Nonnull)urls SWIFT_AVAILABILITY(ios,introduced=11.0);
+- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentAtURL:(NSURL * _Nonnull)url;
+@end
+
+
 SWIFT_PROTOCOL("_TtP13SendBirdUIKit26SBUUserProfileViewDelegate_")
 @protocol SBUUserProfileViewDelegate
 /// This delegate function notifies the implemented class when closing the selector.
@@ -5820,25 +5856,6 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit26SBUUserProfileViewDelegate_")
 @interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUUserProfileViewDelegate>
 - (void)didSelectMessageWithUserId:(NSString * _Nullable)userId;
 - (void)didSelectClose;
-@end
-
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit))
-- (BOOL)shouldShowLoadingIndicator;
-- (void)shouldDismissLoadingIndicator;
-@end
-
-@class UIDocumentPickerViewController;
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIDocumentPickerDelegate>
-- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentsAtURLs:(NSArray<NSURL *> * _Nonnull)urls SWIFT_AVAILABILITY(ios,introduced=11.0);
-- (void)documentPicker:(UIDocumentPickerViewController * _Nonnull)controller didPickDocumentAtURL:(NSURL * _Nonnull)url;
-@end
-
-
-@interface SBUBaseChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <UIImagePickerControllerDelegate>
-- (void)imagePickerController:(UIImagePickerController * _Nonnull)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey, id> * _Nonnull)info;
-- (void)imagePickerControllerDidCancel:(UIImagePickerController * _Nonnull)picker;
 @end
 
 
@@ -6047,20 +6064,16 @@ SWIFT_CLASS("_TtC13SendBirdUIKit28SBUChannelListViewController")
 /// \param completionHandler Completion handler
 ///
 - (void)leaveChannel:(SBDGroupChannel * _Nonnull)channel completionHandler:(void (^ _Nullable)(BOOL))completionHandler;
+/// This function resets the channel list.
+/// since:
+/// x.x.x
+- (void)resetChannelList;
 /// This function loads the channel list. If the reset value is true, the channel list will reset.
 /// since:
 /// 1.2.5
 /// \param reset To reset the channel list
 ///
 - (void)loadNextChannelListWithReset:(BOOL)reset;
-/// This function loads the channel changelogs.
-/// since:
-/// 1.2.5
-/// \param hasMore If set to <code>true</code>, the changelogs will no longer be scanned.
-///
-/// \param token Use when you have the last updated token value.
-///
-- (void)loadChannelChangeLogsWithHasMore:(BOOL)hasMore token:(NSString * _Nullable)token;
 /// This function sorts the channel lists.
 /// since:
 /// 1.2.5
@@ -6143,6 +6156,11 @@ SWIFT_CLASS("_TtC13SendBirdUIKit28SBUChannelListViewController")
 @end
 
 
+@interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDConnectionDelegate>
+- (void)didSucceedReconnection;
+@end
+
+
 @interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUEmptyViewDelegate>
 - (void)didSelectRetry;
 @end
@@ -6188,7 +6206,7 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit36SBUCreateChannelTypeSelectorDelegate_")
 @end
 
 
-@interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate, SBDConnectionDelegate>
+@interface SBUChannelListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate>
 - (void)channel:(SBDGroupChannel * _Nonnull)sender userDidJoin:(SBDUser * _Nonnull)user;
 - (void)channel:(SBDGroupChannel * _Nonnull)sender userDidLeave:(SBDUser * _Nonnull)user;
 - (void)channelWasChanged:(SBDBaseChannel * _Nonnull)sender;
@@ -6196,7 +6214,6 @@ SWIFT_PROTOCOL("_TtP13SendBirdUIKit36SBUCreateChannelTypeSelectorDelegate_")
 - (void)channelWasFrozen:(SBDBaseChannel * _Nonnull)sender;
 - (void)channelWasUnfrozen:(SBDBaseChannel * _Nonnull)sender;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender userWasBanned:(SBDUser * _Nonnull)user;
-- (void)didSucceedReconnection;
 @end
 
 
@@ -6597,9 +6614,14 @@ SWIFT_CLASS("_TtC13SendBirdUIKit24SBUChannelViewController")
 - (UIViewController * _Nonnull)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController * _Nonnull)controller SWIFT_WARN_UNUSED_RESULT;
 @end
 
+
+@interface SBUChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDConnectionDelegate>
+- (void)didSucceedReconnection;
+@end
+
 @class SBDReactionEvent;
 
-@interface SBUChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate, SBDConnectionDelegate>
+@interface SBUChannelViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBDChannelDelegate>
 - (void)channel:(SBDBaseChannel * _Nonnull)sender didReceiveMessage:(SBDBaseMessage * _Nonnull)message;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender didUpdateMessage:(SBDBaseMessage * _Nonnull)message;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender messageWasDeleted:(int64_t)messageId;
@@ -6614,7 +6636,6 @@ SWIFT_CLASS("_TtC13SendBirdUIKit24SBUChannelViewController")
 - (void)channel:(SBDBaseChannel * _Nonnull)sender userWasUnmuted:(SBDUser * _Nonnull)user;
 - (void)channelDidUpdateOperators:(SBDBaseChannel * _Nonnull)sender;
 - (void)channel:(SBDBaseChannel * _Nonnull)sender userWasBanned:(SBDUser * _Nonnull)user;
-- (void)didSucceedReconnection;
 @end
 
 
@@ -7611,17 +7632,30 @@ SWIFT_CLASS("_TtC13SendBirdUIKit7SBUMain")
 /// This function is used to initializes SDK with applicationId.
 /// \param applicationId Application ID
 ///
-+ (void)initializeWithApplicationId:(NSString * _Nonnull)applicationId;
++ (void)initializeWithApplicationId:(NSString * _Nonnull)applicationId SWIFT_DEPRECATED_MSG("deprecated in [NEXT_VERSION]", "initializeWithApplicationId:migrationStartHandler:completionHandler:");
+/// This function is used to initializes SDK with applicationId.
+/// When the completion handler is called, please proceed with the next operation.
+/// since:
+/// [NEXT_VERSION]
+/// \param applicationId Application ID
+///
+/// \param migrationStartHandler Migration start handler
+///
+/// \param completionHandler Completion handler
+///
++ (void)initializeWithApplicationId:(NSString * _Nonnull)applicationId migrationStartHandler:(void (^ _Nullable)(void))migrationStartHandler completionHandler:(void (^ _Nullable)(SBDError * _Nullable))completionHandler;
 /// This function is used to connect to the SendBird server.
 /// Before invoking this function, <code>CurrentUser</code> object of <code>SBUGlobals</code> claas must be set.
 /// \param completionHandler The handler block to execute.
 ///
 + (void)connectWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler;
++ (void)connectionCheckWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler SWIFT_DEPRECATED_MSG("deprecated in 2.2.0", "connectIfNeededWithCompletionHandler:");
 /// This function is used to check the connection state.
 /// if connected, returns the SBDUser object, otherwise, call the connect function from the inside.
+/// If local caching is enabled, the currentUser object is delivered and the connect operation is performed.
 /// \param completionHandler The handler block to execute.
 ///
-+ (void)connectionCheckWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler;
++ (void)connectIfNeededWithCompletionHandler:(void (^ _Nonnull)(SBDUser * _Nullable, SBDError * _Nullable))completionHandler;
 /// This function is used to disconnect
 /// \param completionHandler The handler block to execute.
 ///
@@ -7913,15 +7947,15 @@ SWIFT_CLASS("_TtC13SendBirdUIKit27SBUMemberListViewController")
 @end
 
 
-@interface SBUMemberListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUUserProfileViewDelegate>
-- (void)didSelectMessageWithUserId:(NSString * _Nullable)userId;
-- (void)didSelectClose;
-@end
-
-
 @interface SBUMemberListViewController (SWIFT_EXTENSION(SendBirdUIKit))
 - (BOOL)shouldShowLoadingIndicator;
 - (void)shouldDismissLoadingIndicator;
+@end
+
+
+@interface SBUMemberListViewController (SWIFT_EXTENSION(SendBirdUIKit)) <SBUUserProfileViewDelegate>
+- (void)didSelectMessageWithUserId:(NSString * _Nullable)userId;
+- (void)didSelectClose;
 @end
 
 

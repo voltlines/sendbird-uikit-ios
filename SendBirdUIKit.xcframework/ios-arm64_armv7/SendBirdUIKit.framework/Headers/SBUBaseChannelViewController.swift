@@ -246,19 +246,26 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
             return
         }
         
-        let cachedMessages = self.channelViewModel?.messageCache.flush(with: [])
+        let cachedMessages = self.channelViewModel?.flushCache(with: [])
 
-        self.channelViewModel = SBUChannelViewModel(
-            channel: baseChannel,
-            customizedMessageListParams: self.customizedMessageListParams
-        )
+        if baseChannel is SBDGroupChannel {
+            self.channelViewModel = SBUChannelViewModel(
+                channel: baseChannel,
+                customizedMessageListParams: self.customizedMessageListParams
+            )
+        } else {
+            self.channelViewModel = SBUOpenChannelViewModel(
+                channel: baseChannel,
+                customizedMessageListParams: self.customizedMessageListParams
+            )
+        }
         
         self.channelViewModel?.loadInitialMessages(startingPoint: startingPoint,
                                                    showIndicator: showIndicator,
                                                    initialMessages: cachedMessages)
     }
 
-    private func bindViewModel() {
+    func bindViewModel() {
         SBULog.info("bindViewModel")
         guard let channelViewModel = self.channelViewModel else { return }
         
@@ -275,43 +282,45 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
         channelViewModel.errorObservable.observe { [weak self] error in
             guard let self = self else { return }
             
-            if self.messageList.isEmpty {
+            if self.fullMessageList.isEmpty {
                 if let emptyView = self.emptyView as? SBUEmptyView {
                     emptyView.reloadData(self.fullMessageList.isEmpty ? .error : .none)
                 }
             }
             
+            if self.messageList.isEmpty {
+                self.tableView.reloadData()
+            }
+            
             self.didReceiveError(error.localizedDescription)
         }
         
-        channelViewModel.initialLoadObservable.observe { [weak self] messages in
+        channelViewModel.initialLoadObservable.observe { [weak self] fromCache, messages in
             guard let self = self else { return }
             SBULog.info("Initial messages count : \(messages.count)")
             
             self.shouldDismissLoadingIndicator()
             
-            if messages.isEmpty {
-                SBULog.info("Fetched empty messages.")
-                if let emptyView = self.emptyView as? SBUEmptyView {
-                    emptyView.reloadData(.noMessages)
+            if fromCache {
+                self.clearMessageList()
+                
+                // prevent empty view showing
+                if messages.isEmpty { return }
+            } else {
+                switch channelViewModel.initPolicy {
+                case .cacheAndReplaceByApi: self.clearMessageList()
+                default: break
                 }
             }
             
-            self.clearMessageList()
             self.upsertMessagesInList(messages: messages, needReload: true)
             
             self.tableView.layoutIfNeeded()
-
-            if let startingPoint = self.channelViewModel?.startingPoint,
-               let index = self.fullMessageList.firstIndex(where: { $0.createdAt <= startingPoint }) {
-                SBULog.info("Scrolling to : \(index)")
-                self.scrollTableViewTo(row: index, at: .middle)
-            } else {
-                self.scrollTableViewTo(row: 0)
-            }
+            
+            self.scrollToInitialPosition()
         }
         
-        channelViewModel.messageFetchedObservable.observe { [weak self] upsertedMessages, keepScroll in
+        channelViewModel.messageUpsertObservable.observe { [weak self] upsertedMessages, messageContext, keepScroll in
             guard let self = self else { return }
             SBULog.info("Fetched : \(upsertedMessages.count), keepScroll : \(keepScroll)")
             
@@ -320,36 +329,38 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
                 return
             }
             
-            if keepScroll {
-                let firstVisibleIndexPath = self.tableView.indexPathsForVisibleRows?.first ?? IndexPath(row: 0, section: 0)
-                var nextInsertedCount = 0
-                if let newestMessage = self.messageList.first {
-                    // only filter out messages inserted at the bottom (newer) of current visible item
-                    nextInsertedCount = upsertedMessages
-                        .filter({ $0.createdAt > newestMessage.createdAt })
-                        .filter({ !SBUUtils.contains(messageId: $0.messageId, in: self.messageList) }).count
+            if messageContext?.source != .eventMessageReceived {
+                // follow keepScroll flag if context is not `eventMessageReceived`.
+                if keepScroll {
+                    self.keepCurrentScroll(for: upsertedMessages)
                 }
-                
-                SBULog.info("New messages inserted : \(nextInsertedCount)")
-                self.lastSeenIndexPath = IndexPath(row: firstVisibleIndexPath.row + nextInsertedCount, section: 0)
+            } else {
+                if !self.isScrollNearBottom() {
+                    self.keepCurrentScroll(for: upsertedMessages)
+                }
             }
             
             self.upsertMessagesInList(messages: upsertedMessages, needReload: true)
         }
         
-        channelViewModel.messageUpdatedObservable.observe { [weak self] updatedMessages in
-            guard let self = self else { return }
-            
-            let messagesToUpdate = updatedMessages.filter { SBUUtils.findIndex(of: $0, in: self.messageList) != nil }
-            SBULog.info("UpdatedMessages : \(updatedMessages.count), messagesToUpdate : \(messagesToUpdate)")
-            
-            guard !messagesToUpdate.isEmpty else { return }
-            self.upsertMessagesInList(messages: messagesToUpdate, needReload: true)
+        channelViewModel.messageDeleteObservable.observe { [weak self] deletedMessageIds in
+            guard !deletedMessageIds.isEmpty else { return }
+            self?.deleteMessagesInList(messageIds: deletedMessageIds, needReload: true)
         }
         
-        channelViewModel.deletedMessageFetchedObservable.observe { [weak self] deletedMessageIds in
-            guard !deletedMessageIds.isEmpty else { return }
-            self?.deleteMessagesInList(messageIds: deletedMessageIds, needReload: false)
+        channelViewModel.hugeGapObservable.observe { [weak self] _ in
+            guard let self = self else { return }
+            
+            var startingPoint: Int64?
+            let visibleRowCount = self.tableView.indexPathsForVisibleRows?.count ?? 0
+            let visibleCenterIdx = self.tableView.indexPathsForVisibleRows?[visibleRowCount / 2].row ?? 0
+            if visibleCenterIdx < self.fullMessageList.count {
+                startingPoint = self.fullMessageList[visibleCenterIdx].createdAt
+            }
+            
+            self.channelViewModel?.loadInitialMessages(startingPoint: startingPoint,
+                                                       showIndicator: false,
+                                                       initialMessages: nil)
         }
     }
     
@@ -505,7 +516,7 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
     
     /// To keep track of which scrolls tableview.
     func scrollTableViewTo(row: Int, at position: UITableView.ScrollPosition = .top, animated: Bool = false) {
-        if self.fullMessageList.isEmpty {
+        if self.fullMessageList.isEmpty || row < 0 || row >= self.fullMessageList.count {
             guard self.tableView.contentOffset != .zero else { return }
             
             self.tableView.setContentOffset(.zero, animated: false)
@@ -538,7 +549,6 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
             }
         }
         
-        self.channelViewModel?.resetRequestingLoad()
         self.sortAllMessageList(needReload: needReload)
     }
     
@@ -676,11 +686,11 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
         let pendingMessages = SBUPendingMessageManager.shared.getPendingMessages(
             channelUrl: self.baseChannel?.channelUrl
         )
-        let sendMessages = self.messageList
         
+        self.messageList.sort { $0.createdAt > $1.createdAt }
         self.fullMessageList = pendingMessages
             .sorted { $0.createdAt > $1.createdAt }
-            + sendMessages.sorted { $0.createdAt > $1.createdAt }
+            + self.messageList
         
         if let emptyView = self.emptyView as? SBUEmptyView {
             emptyView.reloadData(self.fullMessageList.isEmpty ? .noMessages : .none)
@@ -706,7 +716,7 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
             return
         }
         
-        guard self.channelViewModel?.isRequestingLoad == false else {
+        guard self.channelViewModel?.isLoadingNext == false else {
             self.lastSeenIndexPath = nil
             return
         }
@@ -1172,6 +1182,34 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
     
     // MARK: - ScrollView
     
+    private func keepCurrentScroll(for upsertedMessages: [SBDBaseMessage]) {
+        let firstVisibleIndexPath = self.tableView.indexPathsForVisibleRows?.first ?? IndexPath(row: 0, section: 0)
+        var nextInsertedCount = 0
+        if let newestMessage = self.messageList.first {
+            // only filter out messages inserted at the bottom (newer) of current visible item
+            nextInsertedCount = upsertedMessages
+                .filter({ $0.createdAt > newestMessage.createdAt })
+                .filter({ !SBUUtils.contains(messageId: $0.messageId, in: self.messageList) }).count
+        }
+        
+        SBULog.info("New messages inserted : \(nextInsertedCount)")
+        self.lastSeenIndexPath = IndexPath(row: firstVisibleIndexPath.row + nextInsertedCount, section: 0)
+    }
+    
+    /// Scrolls tableview to initial position.
+    /// If starting point is set, scroll to the starting point at `.middle`.
+    func scrollToInitialPosition() {
+        if let startingPoint = self.channelViewModel?.getStartingPoint() {
+            if let index = self.fullMessageList.firstIndex(where: { $0.createdAt <= startingPoint }) {
+                self.scrollTableViewTo(row: index, at: .middle)
+            } else {
+                self.scrollTableViewTo(row: self.fullMessageList.count - 1, at: .top)
+            }
+        } else {
+            self.scrollTableViewTo(row: 0)
+        }
+    }
+    
     func isScrollNearBottom() -> Bool {
         return self.tableView.contentOffset.y < 10
     }
@@ -1188,7 +1226,7 @@ open class SBUBaseChannelViewController: SBUBaseViewController {
             self.inEditingMessage = nil
             self.messageInputView.endEditMode()
             
-            if self.channelViewModel?.hasNext ?? false {
+            if self.channelViewModel?.hasNext() ?? false {
                 self.tableView.setContentOffset(self.tableView.contentOffset, animated: false)
                 self.createViewModel(startingPoint: nil, showIndicator: false)
                 self.scrollTableViewTo(row: 0)
@@ -1347,10 +1385,10 @@ extension SBUBaseChannelViewController: UITableViewDelegate, UITableViewDataSour
         guard let channelViewModel = self.channelViewModel else { return }
         
         if indexPath.row >= (self.fullMessageList.count - self.messageListParams.previousResultSize / 2),
-           channelViewModel.hasPrevious {
+           channelViewModel.hasPrevious() {
             self.channelViewModel?.loadPrevMessages(timestamp: self.messageList.last?.createdAt)
         } else if indexPath.row < 5,
-                  channelViewModel.hasNext {
+                  channelViewModel.hasNext() {
             self.channelViewModel?.loadNextMessages()
         }
     }

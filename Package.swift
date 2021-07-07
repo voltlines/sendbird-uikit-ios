@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(name: "SendBirdSDK",
                  url: "https://github.com/sendbird/sendbird-ios-framework",
-                 from: "3.0.226"),
+                 from: "3.0.227"),
     ],
     targets: [
         .binaryTarget(name: "SendBirdUIKit", path: "SendBirdUIKit.xcframework"),

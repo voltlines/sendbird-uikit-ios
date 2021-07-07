@@ -232,7 +232,7 @@ open class SBUCreateChannelViewController: SBUBaseViewController {
     ///   - reset: `true` is reset user list and load new list
     ///   - users: customized `SBUUser` array for add to user list
     public func loadNextUserList(reset: Bool, users: [SBUUser]? = nil) {
-        if self.isLoading { return }
+        guard !self.isLoading else { return }
         self.showLoading(state: true)
         
         if reset {
