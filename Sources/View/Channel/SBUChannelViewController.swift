@@ -230,9 +230,9 @@ open class SBUChannelViewController: SBUBaseChannelViewController {
         if self.leftBarButton == nil {
             self.leftBarButton = self.backButton
         }
-        if self.rightBarButton == nil {
-            self.rightBarButton = self.infoButton
-        }
+//        if self.rightBarButton == nil {
+//            self.rightBarButton = self.infoButton
+//        }
         
         // navigation bar
         self.navigationItem.leftBarButtonItem = self.leftBarButton

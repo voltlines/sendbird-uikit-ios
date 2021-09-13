@@ -147,9 +147,9 @@ open class SBUChannelListViewController: SBUBaseChannelListViewController {
         if self.leftBarButton == nil {
             self.leftBarButton = self.backButton
         }
-        if self.rightBarButton == nil {
-            self.rightBarButton = self.createChannelButton
-        }
+//        if self.rightBarButton == nil {
+//            self.rightBarButton = self.createChannelButton
+//        }
         if self.emptyView == nil {
             self.emptyView = self.defaultEmptyView
         }
