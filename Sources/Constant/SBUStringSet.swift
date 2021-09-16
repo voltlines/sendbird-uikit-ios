@@ -56,12 +56,12 @@ public class SBUStringSet: NSObject {
 
 
     // MARK: - Channel List
-    public static var ChannelList_Header_Title = "Channels"
+    public static var ChannelList_Header_Title = "Sohbetler"
     public static var ChannelList_Last_File_Message = "uploaded a file."
 
 
     // MARK: - Channel
-    public static var Channel_Name_Default = "Group Channel"
+    public static var Channel_Name_Default = "Sohbet"
     public static var Channel_Name_No_Members = "(No members)"
     public static var Channel_Header_LastSeen = "Last seen"
     public static var Channel_Header_Typing: ([SBDUser]) -> String = { members in
