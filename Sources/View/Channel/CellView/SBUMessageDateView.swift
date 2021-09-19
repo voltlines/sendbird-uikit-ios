@@ -45,7 +45,7 @@ class SBUMessageDateView: UIView {
     func setupAutolayout() {
         self.dateLabel
             .setConstraint(from: self, centerX: true, centerY: true)
-            .setConstraint(width: 91, height: 20)
+            .setConstraint(height: 20)
         
         self.setConstraint(height: 20, priority: .defaultLow)
     }
