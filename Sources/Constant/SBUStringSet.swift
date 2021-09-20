@@ -12,88 +12,88 @@ import SendBirdSDK
 @objcMembers
 public class SBUStringSet: NSObject {
     // MARK: - Common
-    public static var Cancel = "Cancel"
-    public static var OK = "OK"
-    public static var Retry = "Retry"
-    public static var Save = "Save"
-    public static var Copy = "Copy"
-    public static var Delete = "Delete"
-    public static var Edit = "Edit"
-    public static var Remove = "Remove"
-    public static var Camera = "Camera"
-    public static var PhotoVideoLibrary = "Photo library"
-    public static var Document = "Files"
-    public static var Loading = "Loading..."
-    public static var Invite = "Invite"
-    public static var TakePhoto = "Take photo"
-    public static var ChoosePhoto = "Choose photo"
-    public static var RemovePhoto = "Remove photo"
-    public static var Search = "Search"
+    public static var Cancel = "İptal Et"
+    public static var OK = "Tamam"
+    public static var Retry = "Tekrar Dene"
+    public static var Save = "Kaydet"
+    public static var Copy = "Kopyala"
+    public static var Delete = "Sil"
+    public static var Edit = "Düzenle"
+    public static var Remove = "Kaldır"
+    public static var Camera = "Kamera"
+    public static var PhotoVideoLibrary = "Fotoğraf Galerisi"
+    public static var Document = "Dosyalar"
+    public static var Loading = "Yükleniyor..."
+    public static var Invite = "Davet Et"
+    public static var TakePhoto = "Fotoğraf Çek"
+    public static var ChoosePhoto = "Fotoğraf Seç"
+    public static var RemovePhoto = "Fotoğrafı Kaldır"
+    public static var Search = "Ara"
     
     // MARK: - Alert
-    public static var Alert_Delete = "Are you sure you want to delete?"
+    public static var Alert_Delete = "Silmek istediğine emin misin?"
 
 
     // MARK: - Date Format
-    public static var Date_Yesterday = "Yesterday"
+    public static var Date_Yesterday = "Dün"
     public static var Date_Year: (Int) -> String = { interval in
-        return String(format :"%lld%@", interval, (interval>1) ? "years" : "year")
+        return String(format :"%lld%@", interval, (interval>1) ? "yıl" : "yıl")
     }
     public static var Date_Day: (Int) -> String = { interval in
-        return String(format :"%lld%@", interval, (interval>1) ? "days" : "day")
+        return String(format :"%lld%@", interval, (interval>1) ? "gün" : "gün")
     }
     public static var Date_Month: (Int) -> String = { interval in
-        return String(format :"%lldmonth", interval)
+        return String(format :"%llday", interval)
     }
     public static var Date_Hour: (Int) -> String = { interval in
-        return String(format :"%lldh", interval)
+        return String(format :"%lldsaat", interval)
     }
     public static var Date_Min: (Int) -> String = { interval in
-        return String(format :"%lldm", interval)
+        return String(format :"%llddakika", interval)
     }
-    public static var Date_Ago = "ago"
-    public static var Date_On = "on"
+    public static var Date_Ago = "önce"
+    public static var Date_On = ""
 
 
     // MARK: - Channel List
     public static var ChannelList_Header_Title = "Sohbetler"
-    public static var ChannelList_Last_File_Message = "uploaded a file."
+    public static var ChannelList_Last_File_Message = "Dosya Yüklendi."
 
 
     // MARK: - Channel
     public static var Channel_Name_Default = "Sohbet"
-    public static var Channel_Name_No_Members = "(No members)"
-    public static var Channel_Header_LastSeen = "Last seen"
+    public static var Channel_Name_No_Members = "(Üye yok)"
+    public static var Channel_Header_LastSeen = "Son görülme"
     public static var Channel_Header_Typing: ([SBDUser]) -> String = { members in
         switch members.count {
         case 1:
-            return String(format: "%@ is typing...",
-                          members[0].nickname ?? "Member")
+            return String(format: "%@ yazıyor",
+                          members[0].nickname ?? "Üye")
         case 2:
-            return String(format: "%@ and %@ are typing...",
-                          members[0].nickname ?? "Member",
-                          members[1].nickname ?? "Member")
+            return String(format: "%@ ve %@ yazıyor",
+                          members[0].nickname ?? "Üye",
+                          members[1].nickname ?? "üye")
         default:
-            return "Several people are typing..."
+            return "Birden fazla kişi yazıyor"
         }
     }
-    public static var Channel_Success_Download_file = "File saved."
-    public static var Channel_Failure_Download_file = "Couldn’t download file."
-    public static var Channel_Failure_Open_file = "Couldn’t open file."
-    public static var Channel_New_Message_File = "uploaded a file"
+    public static var Channel_Success_Download_file = "Dosya kaydedildi."
+    public static var Channel_Failure_Download_file = "Dosya kaydedilemedi."
+    public static var Channel_Failure_Open_file = "Dosya açılamadı."
+    public static var Channel_New_Message_File = "Dosya yüklendi."
     public static var Channel_New_Message: (Int) -> String = { count in
         switch count {
         case 1:
-            return "1 new message"
+            return "1 yeni mesaj"
         case 2...99:
-            return "\(count) new messages"
+            return "\(count) yeni mesaj"
         case 100...:
-            return "99+ new messages"
+            return "99+ yeni mesaj"
         default:
             return ""
         }
     }
-    public static var Channel_State_Banner_Frozen = "Channel frozen"
+    public static var Channel_State_Banner_Frozen = "Grup durduruldu"
     
     
     // MARK: - Open Channel
@@ -140,26 +140,26 @@ public class SBUStringSet: NSObject {
 
 
     // MARK: - Message Input
-    public static var MessageInput_Text_Placeholder = "Type a message"
-    public static var MessageInput_Text_Unavailable = "Chat is unavailable in this channel"
-    public static var MessageInput_Text_Muted = "You are muted"
+    public static var MessageInput_Text_Placeholder = "Bir mesaj yaz"
+    public static var MessageInput_Text_Unavailable = "Bu kanalda sohbet kullanılmıyor"
+    public static var MessageInput_Text_Muted = "Sessize alındın"
 
 
     // MARK: - Message
-    public static var Message_Edited = "(edited)"
-    public static var Message_System = "System message"
-    public static var Message_Unknown_Title = "(Unknown message type)"
-    public static var Message_Unknown_Desctiption = "Cannot read this message."
+    public static var Message_Edited = "(düzenlendi)"
+    public static var Message_System = "Sistem mesajı"
+    public static var Message_Unknown_Title = "Bilinmeyen mesaj türü"
+    public static var Message_Unknown_Desctiption = "Bu mesaj okunamıyor."
 
 
     // MARK: - Empty
-    public static var Empty_No_Channels = "No channels"
-    public static var Empty_No_Messages = "No messages"
-    public static var Empty_No_Users = "No users"
-    public static var Empty_No_Muted_Members = "No muted members"
-    public static var Empty_No_Banned_Members = "No banned members"
-    public static var Empty_Search_Result = "No results found"
-    public static var Empty_Wrong = "Something went wrong"
+    public static var Empty_No_Channels = "Kanal bulunmuyor"
+    public static var Empty_No_Messages = "Mesaj bulunmuyor"
+    public static var Empty_No_Users = "Kullanıcı bulunmuyor"
+    public static var Empty_No_Muted_Members = "Sessizde üye yok"
+    public static var Empty_No_Banned_Members = "Yasaklanmış üye yok"
+    public static var Empty_Search_Result = "Sonuç bulunamadı"
+    public static var Empty_Wrong = "Bir şeyler yanlış gitti"
 
 
     // MARK: - Create Channel
@@ -214,8 +214,8 @@ public class SBUStringSet: NSObject {
     public static var MemberList_Title_Participants = "Participants"
     
     // MARK: - User
-    public static var User_No_Name = "(No name)"
-    public static var User_Operator = "Operator"
+    public static var User_No_Name = "(İsim bulunmuyor)"
+    public static var User_Operator = "Operatör"
     
     
     // MARK - User profile
@@ -231,7 +231,7 @@ public class SBUStringSet: NSObject {
     
     
     // MARK: - Channel type
-    public static var ChannelType_Group = "Group"
-    public static var ChannelType_SuperGroup = "Super group"
+    public static var ChannelType_Group = "Grup"
+    public static var ChannelType_SuperGroup = "Super grup"
     public static var ChannelType_Broadcast = "Broadcast"
 }
