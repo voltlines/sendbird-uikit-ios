@@ -799,31 +799,31 @@ extension SBUChannelListViewController: UITableViewDataSource, UITableViewDelega
             let channel = self.channelList[index]
             let size = tableView.visibleCells[0].frame.height
             let iconSize: CGFloat = 40.0
-            
-            let leaveAction = UIContextualAction(
-                style: .normal,
-                title: ""
-            ) { action, view, actionHandler in
-                self.leaveChannel(channel) { success in
-                    actionHandler(success)
-                }
-            }
-            
-            let leaveTypeView = UIImageView(
-                frame: CGRect(
-                    x: (size-iconSize)/2,
-                    y: (size-iconSize)/2,
-                    width: iconSize,
-                    height: iconSize
-            ))
-            leaveTypeView.layer.cornerRadius = iconSize/2
-            leaveTypeView.backgroundColor = theme.leaveBackgroundColor
-            leaveTypeView.image = SBUIconSetType.iconLeave.image(with: theme.leaveTintColor,
-                                                             to: SBUIconSetType.Metric.defaultIconSize)
-            leaveTypeView.contentMode = .center
-            
-            leaveAction.image = leaveTypeView.asImage()
-            leaveAction.backgroundColor = theme.alertBackgroundColor
+//
+//            let leaveAction = UIContextualAction(
+//                style: .normal,
+//                title: ""
+//            ) { action, view, actionHandler in
+//                self.leaveChannel(channel) { success in
+//                    actionHandler(success)
+//                }
+//            }
+//
+//            let leaveTypeView = UIImageView(
+//                frame: CGRect(
+//                    x: (size-iconSize)/2,
+//                    y: (size-iconSize)/2,
+//                    width: iconSize,
+//                    height: iconSize
+//            ))
+//            leaveTypeView.layer.cornerRadius = iconSize/2
+//            leaveTypeView.backgroundColor = theme.leaveBackgroundColor
+//            leaveTypeView.image = SBUIconSetType.iconLeave.image(with: theme.leaveTintColor,
+//                                                             to: SBUIconSetType.Metric.defaultIconSize)
+//            leaveTypeView.contentMode = .center
+//
+//            leaveAction.image = leaveTypeView.asImage()
+//            leaveAction.backgroundColor = theme.alertBackgroundColor
             
             let pushOption = channel.myPushTriggerOption
             let alarmAction = UIContextualAction(
@@ -873,7 +873,7 @@ extension SBUChannelListViewController: UITableViewDataSource, UITableViewDelega
             alarmAction.image = alarmTypeView.asImage()
             alarmAction.backgroundColor = theme.alertBackgroundColor
             
-            return UISwipeActionsConfiguration(actions: [leaveAction, alarmAction])
+            return UISwipeActionsConfiguration(actions: [alarmAction])
     }
 }
 
