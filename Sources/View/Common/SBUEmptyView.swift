@@ -86,7 +86,7 @@ open class SBUEmptyView: UIView {
             self.stackView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: 0)
         ])
         
-        self.statusImageView.setConstraint(width: 60.0, height: 60.0)
+//        self.statusImageView.setConstraint(width: 60.0, height: 60.0)
     }
     
     open func setupStyles() {
@@ -142,9 +142,7 @@ open class SBUEmptyView: UIView {
         case .noChannels:
             self.statusLabel.text = SBUStringSet.Empty_No_Channels
             self.statusImageView.image = SBUIconSetType.iconNoChannels.image(
-                with: theme.emptyViewStatusTintColor,
-                to: SBUIconSetType.Metric.iconEmptyView,
-                tintAndResize: false
+                to: SBUIconSetType.Metric.iconNoChannels
             )
         case .noMessages:
             self.statusLabel.text = SBUStringSet.Empty_No_Messages
