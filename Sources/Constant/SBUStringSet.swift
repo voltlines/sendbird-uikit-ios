@@ -153,7 +153,7 @@ public class SBUStringSet: NSObject {
 
 
     // MARK: - Empty
-    public static var Empty_No_Channels = "Düzenli bir rotaya atanmadığınız için  sohbet grubunuz bulunmamaktadır."
+    public static var Empty_No_Channels = "Yolculuğunuz planlandığında yolcularınız ile buradan konuşabilirsiniz."
     public static var Empty_No_Messages = "Mesaj bulunmuyor"
     public static var Empty_No_Users = "Kullanıcı bulunmuyor"
     public static var Empty_No_Muted_Members = "Sessizde üye yok"
