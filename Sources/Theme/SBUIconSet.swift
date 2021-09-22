@@ -109,6 +109,9 @@ public class SBUIconSet: NSObject {
     public static var iconMute: UIImage = SBUIconSetType.iconMute.load() {
         didSet { SBUIconSetType.iconMute.markCustomized() }
     }
+    public static var iconNoChannels: UIImage = SBUIconSetType.iconNoChannels.load() {
+        didSet { SBUIconSetType.iconNoChannels.markCustomized() }
+    }
     public static var iconNotificationFilled: UIImage = SBUIconSetType.iconNotificationFilled.load() {
         didSet { SBUIconSetType.iconNotificationFilled.markCustomized() }
     }

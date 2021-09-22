@@ -141,7 +141,7 @@ open class SBUEmptyView: UIView {
             self.isHidden = true
         case .noChannels:
             self.statusLabel.text = SBUStringSet.Empty_No_Channels
-            self.statusImageView.image = SBUIconSetType.iconChat.image(
+            self.statusImageView.image = SBUIconSetType.iconNoChannels.image(
                 with: theme.emptyViewStatusTintColor,
                 to: SBUIconSetType.Metric.iconEmptyView,
                 tintAndResize: false

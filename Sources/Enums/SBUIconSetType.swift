@@ -41,6 +41,7 @@ enum SBUIconSetType: String, Hashable {
     case iconModerations
     case iconMore
     case iconMute
+    case iconNoChannels
     case iconNotificationFilled
     case iconNotificationOffFilled
     case iconNotifications
@@ -153,6 +154,7 @@ enum SBUIconSetType: String, Hashable {
         case .iconModerations: SBUIconSet.iconModerations = SBUIconSetType.iconModerations.load()
         case .iconMore: SBUIconSet.iconMore = SBUIconSetType.iconMore.load()
         case .iconMute: SBUIconSet.iconMute = SBUIconSetType.iconMute.load()
+        case .iconNoChannels: SBUIconSet.iconNoChannels = SBUIconSetType.iconNoChannels.load()
         case .iconNotificationFilled: SBUIconSet.iconNotificationFilled = SBUIconSetType.iconNotificationFilled.load()
         case .iconNotificationOffFilled: SBUIconSet.iconNotificationOffFilled = SBUIconSetType.iconNotificationOffFilled.load()
         case .iconNotifications: SBUIconSet.iconNotifications = SBUIconSetType.iconNotifications.load()
@@ -215,6 +217,7 @@ enum SBUIconSetType: String, Hashable {
         case .iconModerations: return SBUIconSet.iconModerations
         case .iconMore: return SBUIconSet.iconMore
         case .iconMute: return SBUIconSet.iconMute
+        case .iconNoChannels: return SBUIconSet.iconNoChannels
         case .iconNotifications: return SBUIconSet.iconNotifications
         case .iconOperator: return SBUIconSet.iconOperator
         case .iconPhoto: return SBUIconSet.iconPhoto
