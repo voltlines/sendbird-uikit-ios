@@ -97,6 +97,7 @@ open class SBUEmptyView: UIView {
         self.statusLabel.font = theme.emptyViewStatusFont
         self.statusLabel.textColor = theme.emptyViewStatusTintColor
         self.statusLabel.contentMode = .center
+        self.statusLabel.textAlignment = .center
         self.statusLabel.numberOfLines = 0
         self.statusLabel.lineBreakMode = .byWordWrapping
         //NOTE: this will cause unexpected image when tint with not desirable
