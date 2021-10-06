@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "no message.png",
+      "filename" : "soon.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "no message@2x.png",
+      "filename" : "soon@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "no message@3x.png",
+      "filename" : "soon@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
