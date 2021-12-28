@@ -117,6 +117,9 @@ open class MySettingsViewController: UIViewController, UINavigationControllerDel
         self.navigationController?.navigationBar.shadowImage = UIImage.from(
             color: theme.navigationShadowColor
         )
+        self.navigationController?.sbu_setupNavigationBarAppearance(
+            tintColor: theme.navigationBarTintColor
+        )
         
         self.rightBarButton.tintColor = theme.rightBarButtonTintColor
         
@@ -319,21 +322,23 @@ extension MySettingsViewController: UITableViewDataSource, UITableViewDelegate {
         if let type = MySettingsCellType(rawValue: rowValue) {
             cell.configure(type: type, isDarkMode: isDarkMode)
 
-            if type == .doNotDisturb {
-                cell.changeSwitch(self.isDoNotDisturbOn)
-                cell.switchAction = { [weak self] isOn in
-                    self?.changeDisturb(isOn: isOn, { success in
-                        if !success {
-                            cell.changeBackSwitch()
-                        } else {
-                            self?.isDoNotDisturbOn = isOn
-                        }
-                    })
-                }
-            } else if type == .darkTheme {
-                cell.switchAction = { [weak self] isOn in
-                    self?.changeDarkThemeSwitch(isOn: isOn)
-                }
+            switch type {
+                case .darkTheme:
+                    cell.switchAction = { [weak self] isOn in
+                        self?.changeDarkThemeSwitch(isOn: isOn)
+                    }
+                case .doNotDisturb:
+                    cell.changeSwitch(self.isDoNotDisturbOn)
+                    cell.switchAction = { [weak self] isOn in
+                        self?.changeDisturb(isOn: isOn, { success in
+                            if !success {
+                                cell.changeBackSwitch()
+                            } else {
+                                self?.isDoNotDisturbOn = isOn
+                            }
+                        })
+                    }
+                case .signOut: break
             }
         }
 

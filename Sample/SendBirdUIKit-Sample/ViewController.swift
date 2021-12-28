@@ -105,6 +105,7 @@ class ViewController: UIViewController {
                 height: textField.frame.size.height)
             )
             textField.leftView = paddingView
+            textField.delegate = self
             textField.leftViewMode = .always
             textField.layer.borderWidth = 1
             textField.layer.cornerRadius = CornerRadius.small.rawValue
@@ -147,7 +148,14 @@ class ViewController: UIViewController {
         UserDefaults.saveIsLightTheme(true)
         
         let coreVersion: String = SBDMain.getSDKVersion()
-        let uikitVersion: String = SBUMain.shortVersionString() ?? "?"
+        var uikitVersion: String {
+            if SBUMain.shortVersion == "[NEXT_VERSION]" {
+                let bundle = Bundle(identifier: "com.sendbird.uikit.sample")
+                return "\(bundle?.infoDictionary?["CFBundleShortVersionString"] ?? "")"
+            } else {
+                return SBUMain.shortVersion
+            }
+        }
         versionLabel.text = "UIKit v\(uikitVersion)\t|\tSDK v\(coreVersion)"
          
         userIdTextField.text = UserDefaults.loadUserID()
@@ -155,6 +163,10 @@ class ViewController: UIViewController {
         
         SBDMain.add(self as SBDUserEventDelegate, identifier: self.description)
         SBDMain.add(self as SBDConnectionDelegate, identifier: self.description)
+        
+        guard userIdTextField.text != nil,
+              nicknameTextField.text != nil else { return }
+        signinAction()
     }
     
     deinit {
@@ -301,6 +313,17 @@ class ViewController: UIViewController {
 extension ViewController: UINavigationControllerDelegate {
      public override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return UIInterfaceOrientationMask.portrait
+    }
+}
+
+extension ViewController: UITextFieldDelegate {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 

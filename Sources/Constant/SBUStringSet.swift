@@ -29,7 +29,8 @@ public class SBUStringSet: NSObject {
     public static var ChoosePhoto = "Fotoğraf Seç"
     public static var RemovePhoto = "Fotoğrafı Kaldır"
     public static var Search = "Ara"
-    
+    public static var Reply = "Reply"
+
     // MARK: - Alert
     public static var Alert_Delete = "Silmek istediğine emin misin?"
 
@@ -143,6 +144,13 @@ public class SBUStringSet: NSObject {
     public static var MessageInput_Text_Placeholder = "Bir mesaj yaz"
     public static var MessageInput_Text_Unavailable = "Bu kanalda sohbet kullanılmıyor"
     public static var MessageInput_Text_Muted = "Sessize alındın"
+    public static var MessageInput_Text_Reply = "Reply to message"
+    public static var MessageInput_Reply_To: (String) -> String = { quotedMessageNickname in
+        return "Reply to \(quotedMessageNickname)"
+    }
+    public static var MessageInput_Quote_Message_Photo = "Photo"
+    public static var MessageInput_Quote_Message_GIF = "GIF"
+    public static var MessageInput_Quote_Message_Video = "Video"
 
 
     // MARK: - Message
@@ -150,6 +158,10 @@ public class SBUStringSet: NSObject {
     public static var Message_System = "Sistem mesajı"
     public static var Message_Unknown_Title = "Bilinmeyen mesaj türü"
     public static var Message_Unknown_Desctiption = "Bu mesaj okunamıyor."
+    public static var Message_Replied_To: (String, String) -> String = { replierNickname, quotedMessageNickname in
+        return "\(replierNickname) replied to \(quotedMessageNickname)"
+    }
+    public static var Message_You = "You"
 
 
     // MARK: - Empty

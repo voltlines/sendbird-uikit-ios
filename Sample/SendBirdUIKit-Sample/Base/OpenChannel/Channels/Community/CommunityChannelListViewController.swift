@@ -83,7 +83,7 @@ class CommunityChannelListViewController: SBUBaseChannelListViewController, SBUE
         
         self.navigationController?.interactivePopGestureRecognizer?.delegate = nil
         
-        SBUMain.connectionCheck { [weak self] user, error in
+        SBUMain.connectIfNeeded { [weak self] user, error in
             guard let self = self else { return }
             
             SBDMain.add(self as SBDChannelDelegate, identifier: self.description)
@@ -133,6 +133,9 @@ class CommunityChannelListViewController: SBUBaseChannelListViewController, SBUE
         )
         self.navigationController?.navigationBar.shadowImage = UIImage.from(
             color: theme.navigationBarShadowColor
+        )
+        self.navigationController?.sbu_setupNavigationBarAppearance(
+            tintColor: theme.navigationBarTintColor
         )
         
         self.rightBarButton.tintColor = theme.rightBarButtonTintColor
@@ -331,7 +334,7 @@ class CommunityChannelListViewController: SBUBaseChannelListViewController, SBUE
             emptyView.reloadData(.noChannels)
         }
         
-        SBUMain.connectionCheck { [weak self] user, error in
+        SBUMain.connectIfNeeded { [weak self] user, error in
             self?.loadNextChannelList(reset: true)
         }
     }

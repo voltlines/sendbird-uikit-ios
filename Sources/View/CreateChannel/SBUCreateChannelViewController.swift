@@ -174,6 +174,9 @@ open class SBUCreateChannelViewController: SBUBaseViewController {
         self.navigationController?.navigationBar.shadowImage = UIImage.from(
             color: theme.navigationShadowColor
         )
+        
+        // For iOS 15
+        self.navigationController?.sbu_setupNavigationBarAppearance(tintColor: theme.navigationBarTintColor)
 
         self.leftBarButton?.tintColor = theme.leftBarButtonTintColor
         self.rightBarButton?.tintColor = self.selectedUserList.isEmpty
@@ -232,7 +235,7 @@ open class SBUCreateChannelViewController: SBUBaseViewController {
     ///   - reset: `true` is reset user list and load new list
     ///   - users: customized `SBUUser` array for add to user list
     public func loadNextUserList(reset: Bool, users: [SBUUser]? = nil) {
-        if self.isLoading { return }
+        guard !self.isLoading else { return }
         self.showLoading(state: true)
         
         if reset {
@@ -398,7 +401,7 @@ open class SBUCreateChannelViewController: SBUBaseViewController {
     
     /// This function reloads user list.
     /// - Since: 1.2.5
-    @available(*, deprecated, message: "deprecated in 2.1.11", renamed: "reloadData()")
+    @available(*, deprecated, renamed: "reloadData()") // 2.1.11
     public func reloadUserList() {
         self.reloadData()
     }
@@ -470,7 +473,7 @@ open class SBUCreateChannelViewController: SBUBaseViewController {
         SBULog.error("Did receive error: \(message ?? "")")
     }
     
-    @available(*, deprecated, message: "deprecated in 2.1.12", renamed: "errorHandler")
+    @available(*, deprecated, renamed: "errorHandler") // 2.1.12
     open func didReceiveError(_ message: String?, _ code: NSInteger? = nil) {
         self.errorHandler(message, code)
     }

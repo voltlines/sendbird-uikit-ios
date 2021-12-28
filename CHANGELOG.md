@@ -1,5 +1,36 @@
 # Change Log
 
+### v2.2.1 (Dec 9, 2021)
+* Added `deleteResendableMessage(_:needReload:)`
+* Improved stability
+
+### v2.2.0 (Nov 23, 2021)
+* Added Reply to Channel feature
+    * Added `SBUGlobals.ReplyTypeToUse`
+    * Added `SBUReplyType` and its `filterValue` returns `SBDReplyType`
+    * Added `SBUQuoteMessageInputView` and its params for configuration
+    * Added `SBUQuotedMessageViewProtocol`
+    * Added `SBUQuotedBaseMessageView` and its params for configuration
+    * Added `SBUQuotedUserMessageView`, `SBUQuotedFileMessageView` as subclass
+* Cleaning up Message Cell code
+    * Added *params* to configure message cells
+    * Added `SBUViewLifeCycle`, `SBUView`, `SBUTableView`
+    * Added `SBUStackView`
+* Local caching support
+    * Modified `SBUMain.initialize(applicationId:)` to `SBUMain.initialize(applicationId:migrationStartHandler:completionHandler:)`
+    * `SBUMain.connect` can return user instance even when it's online. 
+
+### v2.1.16 (Nov 16, 2021)
+* Updated chat SDK Swift package to **v3.0.208**
+
+### v2.1.15 (Nov 16, 2021)
+* Improved stability
+
+### v2.1.14 (Nov 1, 2021)
+* Fixed issue on navigation bar in iOS 15
+    * Added `sbu_setupNavigationBarAppearance(tintColor:)`
+* Improved stability
+
 ### v2.1.13 (Sep 2, 2021)
 * Updated minor iOS version 10 to 11.
 * Modified keyboard height logic when using `isTranslucent=false` option.

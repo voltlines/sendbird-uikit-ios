@@ -259,7 +259,7 @@ open class SBUMessageSearchViewController: SBUBaseViewController {
         SBULog.error("Did receive error: \(message ?? "")")
     }
     
-    @available(*, deprecated, message: "deprecated in 2.1.12", renamed: "errorHandler")
+    @available(*, deprecated, renamed: "errorHandler") // 2.1.12
     open func didReceiveError(_ message: String?, _ code: NSInteger? = nil) {
         self.errorHandler(message, code)
     }
@@ -326,9 +326,16 @@ open class SBUMessageSearchViewController: SBUBaseViewController {
     
     open override func setupStyles() {
         self.navigationController?.navigationBar.barStyle = self.theme.navigationBarStyle
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage.from(color: theme.navigationBarTintColor),
-                                                                    for: .default)
-        self.navigationController?.navigationBar.shadowImage = UIImage.from(color: theme.navigationBarShadowColor)
+        self.navigationController?.navigationBar.setBackgroundImage(
+            UIImage.from(color: theme.navigationBarTintColor),
+            for: .default
+        )
+        self.navigationController?.navigationBar.shadowImage = UIImage.from(
+            color: theme.navigationBarShadowColor
+        )
+        
+        // For iOS 15
+        self.navigationController?.sbu_setupNavigationBarAppearance(tintColor: theme.navigationBarTintColor)
         
         self.view.backgroundColor = self.theme.backgroundColor
         self.tableView.backgroundColor = self.theme.backgroundColor
@@ -443,13 +450,15 @@ open class SBUMessageSearchViewController: SBUBaseViewController {
             return
         }
         
-        let channelVc = SBUChannelViewController(channelUrl: message.channelUrl,
-                                                 startingPoint: message.createdAt,
-                                                 messageListParams: messageListParams)
-        channelVc.highlightInfo = highlightInfo
-        channelVc.useRightBarButtonItem = false
+        let channelVC = SBUChannelViewController(
+            channelUrl: message.channelUrl,
+            startingPoint: message.createdAt,
+            messageListParams: messageListParams
+        )
+        channelVC.highlightInfo = highlightInfo
+        channelVC.useRightBarButtonItem = false
         
-        self.navigationController?.pushViewController(channelVc, animated: true)
+        self.navigationController?.pushViewController(channelVC, animated: true)
     }
 }
 
